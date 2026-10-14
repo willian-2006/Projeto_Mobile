@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 import Cabecalho from '../componentes/Cabecalho';
 
@@ -10,7 +10,7 @@ import CartaoCategoria from '../componentes/CartaoCategoria';
 
 import EstadoVazio from '../componentes/EstadoVazio';
 
-import ItemTarefa from '../componentes/ItemTarefa';
+import ListaTarefas from '../componentes/ListaTarefas';
 
 import Tela from '../componentes/Tela';
 
@@ -23,25 +23,13 @@ import { CATEGORIAS } from '../dados/categorias';
 export default function Inicio({ navigation }) {
   const estilos = useEstilos(criarEstilos);
 
-  const { tarefas, aoAlternar, aoExcluir } = useTarefas();
+  const { tarefasDeHoje } = useTarefas();
 
   const estatisticas = useEstatisticas();
 
   const abrirCategoria = useCallback(
     chave => navigation.navigate('Categoria', { chave }),
     [navigation]
-  );
-
-  const renderizarTarefa = useCallback(
-    ({ item, index }) => (
-      <ItemTarefa
-        tarefa={item}
-        indice={index}
-        aoAlternar={aoAlternar}
-        aoExcluir={aoExcluir}
-      />
-    ),
-    [aoAlternar, aoExcluir]
   );
 
   const cabecalhoLista = (
@@ -92,10 +80,8 @@ export default function Inicio({ navigation }) {
 
   return (
     <Tela edges={['top']}>
-      <FlatList
-        data={tarefas}
-        keyExtractor={tarefa => tarefa.id}
-        renderItem={renderizarTarefa}
+      <ListaTarefas
+        tarefas={tarefasDeHoje}
         ListHeaderComponent={cabecalhoLista}
         ListEmptyComponent={
           <EstadoVazio
@@ -104,7 +90,6 @@ export default function Inicio({ navigation }) {
             subtitulo="Toque em uma categoria e crie sua primeira tarefa"
           />
         }
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       />
     </Tela>

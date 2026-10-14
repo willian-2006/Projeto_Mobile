@@ -5,30 +5,64 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react';
 
-import { ACOES, tarefasReducer } from './tarefasReducer';
+import { useAviso } from './AvisoContexto';
 
-import { carregarDados, salvarDados } from '../servicos/armazenamento';
+import { usePreferencias } from './PreferenciasContexto';
+
+import { ACOES, dadosReducer } from './tarefasReducer';
+
+import { useHoje } from '../hooks/useHoje';
+
+import {
+  carregarDados,
+  dadosIniciais,
+  salvarDados,
+} from '../servicos/armazenamento';
 
 import { gerarId } from '../utilitarios/gerarId';
 
-import { calcularEstatisticas } from '../utilitarios/pontuacao';
+import {
+  calcularPorcentagem,
+  calcularEstatisticas,
+} from '../utilitarios/pontuacao';
+
+import { calcularSequencia } from '../utilitarios/sequencia';
+
+import { filtrarTarefasDoDia, normalizarTarefa } from '../utilitarios/tarefas';
 
 const TarefasContexto = createContext(null);
 
+const DADOS_VAZIOS = { tarefas: [], historico: [], ultimoDia: null };
+
 export function TarefasProvider({ children }) {
-  const [tarefas, despachar] = useReducer(tarefasReducer, []);
+  const { preferencias, carregando: carregandoPreferencias } =
+    usePreferencias();
+
+  const { mostrarAviso } = useAviso();
+
+  const hoje = useHoje();
+
+  const [dados, despachar] = useReducer(dadosReducer, DADOS_VAZIOS);
 
   const [carregando, setCarregando] = useState(true);
+
+  // Leitura do estado atual dentro de callbacks estáveis.
+  const dadosAtuais = useRef(dados);
+
+  useEffect(() => {
+    dadosAtuais.current = dados;
+  }, [dados]);
 
   useEffect(() => {
     let ativo = true;
 
-    carregarDados().then(tarefasSalvas => {
+    carregarDados().then(dadosSalvos => {
       if (ativo) {
-        despachar({ tipo: ACOES.restaurar, tarefas: tarefasSalvas });
+        despachar({ tipo: ACOES.restaurar, dados: dadosSalvos });
         setCarregando(false);
       }
     });
@@ -38,49 +72,126 @@ export function TarefasProvider({ children }) {
     };
   }, []);
 
+  // Fecha o dia anterior ao abrir o app, à meia-noite e ao voltar
+  // do segundo plano (se a data mudou). Espera as preferências
+  // para registrar o dia com a meta certa.
+  useEffect(() => {
+    if (!carregando && !carregandoPreferencias) {
+      despachar({ tipo: ACOES.virarDia, hoje, meta: preferencias.meta });
+    }
+  }, [hoje, carregando, carregandoPreferencias, preferencias.meta]);
+
   // Só salva depois do primeiro carregamento, para não
   // sobrescrever os dados salvos com a lista vazia inicial.
   useEffect(() => {
     if (!carregando) {
-      salvarDados(tarefas);
+      salvarDados(dados);
     }
-  }, [tarefas, carregando]);
+  }, [dados, carregando]);
 
-  const aoAdicionar = useCallback((categoria, titulo, pontos = 10) => {
-    despachar({
-      tipo: ACOES.adicionar,
-      tarefa: {
-        id: gerarId(),
-        titulo: titulo.trim(),
-        categoria,
-        pontos,
-        concluida: false,
-      },
-    });
-  }, []);
+  const aoAdicionar = useCallback(
+    novaTarefa => {
+      despachar({
+        tipo: ACOES.adicionar,
+        tarefa: normalizarTarefa(
+          { pontos: 10, ...novaTarefa, id: gerarId(), concluida: false },
+          hoje
+        ),
+      });
+    },
+    [hoje]
+  );
 
   const aoAlternar = useCallback(id => {
     despachar({ tipo: ACOES.alternar, id });
   }, []);
 
-  const aoExcluir = useCallback(id => {
-    despachar({ tipo: ACOES.excluir, id });
+  // Exclui e mostra "Desfazer", que devolve a tarefa à mesma posição.
+  const aoExcluir = useCallback(
+    id => {
+      const indice = dadosAtuais.current.tarefas.findIndex(
+        tarefa => tarefa.id === id
+      );
+
+      if (indice === -1) {
+        return;
+      }
+
+      const tarefa = dadosAtuais.current.tarefas[indice];
+
+      despachar({ tipo: ACOES.excluir, id });
+
+      mostrarAviso({
+        mensagem: `"${tarefa.titulo}" excluída`,
+        rotuloAcao: 'Desfazer',
+        aoAcionar: () => despachar({ tipo: ACOES.reinserir, tarefa, indice }),
+      });
+    },
+    [mostrarAviso]
+  );
+
+  const aoEditar = useCallback(
+    (id, alteracoes) => {
+      const atual = dadosAtuais.current.tarefas.find(
+        tarefa => tarefa.id === id
+      );
+
+      if (!atual) {
+        return;
+      }
+
+      despachar({
+        tipo: ACOES.editar,
+        id,
+        alteracoes: normalizarTarefa({ ...atual, ...alteracoes }, hoje),
+      });
+    },
+    [hoje]
+  );
+
+  const aoReordenar = useCallback((idOrigem, idDestino) => {
+    despachar({ tipo: ACOES.reordenar, idOrigem, idDestino });
   }, []);
 
-  const aoEditar = useCallback((id, alteracoes) => {
-    despachar({ tipo: ACOES.editar, id, alteracoes });
-  }, []);
+  // Volta às tarefas de exemplo e apaga o histórico.
+  const aoRedefinirTarefas = useCallback(() => {
+    despachar({
+      tipo: ACOES.restaurar,
+      dados: { ...dadosIniciais(hoje), ultimoDia: hoje },
+    });
+  }, [hoje]);
+
+  const tarefasDeHoje = useMemo(
+    () => filtrarTarefasDoDia(dados.tarefas, hoje),
+    [dados.tarefas, hoje]
+  );
 
   const valor = useMemo(
     () => ({
-      tarefas,
+      tarefas: dados.tarefas,
+      tarefasDeHoje,
+      historico: dados.historico,
+      hoje,
       carregando,
       aoAdicionar,
       aoAlternar,
       aoExcluir,
       aoEditar,
+      aoReordenar,
+      aoRedefinirTarefas,
     }),
-    [tarefas, carregando, aoAdicionar, aoAlternar, aoExcluir, aoEditar]
+    [
+      dados,
+      tarefasDeHoje,
+      hoje,
+      carregando,
+      aoAdicionar,
+      aoAlternar,
+      aoExcluir,
+      aoEditar,
+      aoReordenar,
+      aoRedefinirTarefas,
+    ]
   );
 
   return (
@@ -100,8 +211,33 @@ export function useTarefas() {
   return contexto;
 }
 
+// Totais de hoje (só tarefas do dia) comparados com a meta diária.
 export function useEstatisticas() {
-  const { tarefas } = useTarefas();
+  const { tarefasDeHoje } = useTarefas();
 
-  return useMemo(() => calcularEstatisticas(tarefas), [tarefas]);
+  const { preferencias } = usePreferencias();
+
+  const meta = preferencias.meta;
+
+  return useMemo(() => {
+    const estatisticas = calcularEstatisticas(tarefasDeHoje);
+
+    return {
+      ...estatisticas,
+      meta,
+      porcentagem: calcularPorcentagem(estatisticas.pontosAtuais, meta),
+      metaBatida: estatisticas.pontosAtuais >= meta,
+    };
+  }, [tarefasDeHoje, meta]);
+}
+
+export function useSequencia() {
+  const { historico, hoje } = useTarefas();
+
+  const { metaBatida } = useEstatisticas();
+
+  return useMemo(
+    () => calcularSequencia(historico, hoje, metaBatida),
+    [historico, hoje, metaBatida]
+  );
 }

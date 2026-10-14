@@ -1,6 +1,14 @@
 import React from 'react';
 
+import { StyleSheet } from 'react-native';
+
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { AvisoProvider } from './src/contexto/AvisoContexto';
+
+import { PreferenciasProvider } from './src/contexto/PreferenciasContexto';
 
 import { TarefasProvider } from './src/contexto/TarefasContexto';
 
@@ -10,12 +18,24 @@ import NavegacaoRaiz from './src/navegacao/NavegacaoRaiz';
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <TemaProvider>
-        <TarefasProvider>
-          <NavegacaoRaiz />
-        </TarefasProvider>
-      </TemaProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={estilos.raiz}>
+      <SafeAreaProvider>
+        <TemaProvider>
+          <AvisoProvider>
+            <PreferenciasProvider>
+              <TarefasProvider>
+                <NavegacaoRaiz />
+              </TarefasProvider>
+            </PreferenciasProvider>
+          </AvisoProvider>
+        </TemaProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const estilos = StyleSheet.create({
+  raiz: {
+    flex: 1,
+  },
+});

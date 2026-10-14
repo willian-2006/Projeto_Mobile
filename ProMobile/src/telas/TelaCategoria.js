@@ -1,11 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
 } from 'react-native';
 
@@ -17,7 +16,7 @@ import CabecalhoTela from '../componentes/CabecalhoTela';
 
 import EstadoVazio from '../componentes/EstadoVazio';
 
-import ItemTarefa from '../componentes/ItemTarefa';
+import ListaTarefas from '../componentes/ListaTarefas';
 
 import Tela from '../componentes/Tela';
 
@@ -27,13 +26,13 @@ import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { buscarCategoria } from '../dados/categorias';
 
+import { TAMANHO_MAXIMO_TITULO } from '../dados/opcoesTarefa';
+
 import { brilho } from '../estilos/sombras';
 
 // Ignora um segundo envio logo após o primeiro
 // (onSubmitEditing + toque no botão).
 const INTERVALO_MINIMO_ENVIO = 500;
-
-const TAMANHO_MAXIMO_TITULO = 80;
 
 export default function TelaCategoria({ route, navigation }) {
   const { tema } = useTema();
@@ -42,7 +41,7 @@ export default function TelaCategoria({ route, navigation }) {
 
   const categoria = buscarCategoria(route.params?.chave);
 
-  const { tarefas, aoAdicionar, aoAlternar, aoExcluir } = useTarefas();
+  const { tarefas, aoAdicionar } = useTarefas();
 
   const [novaTarefa, setNovaTarefa] = useState('');
 
@@ -50,16 +49,9 @@ export default function TelaCategoria({ route, navigation }) {
 
   const aoVoltar = useCallback(() => navigation.goBack(), [navigation]);
 
-  const renderizarTarefa = useCallback(
-    ({ item, index }) => (
-      <ItemTarefa
-        tarefa={item}
-        indice={index}
-        aoAlternar={aoAlternar}
-        aoExcluir={aoExcluir}
-      />
-    ),
-    [aoAlternar, aoExcluir]
+  const tarefasCategoria = useMemo(
+    () => tarefas.filter(tarefa => tarefa.categoria === categoria?.chave),
+    [tarefas, categoria]
   );
 
   if (!categoria) {
@@ -79,10 +71,6 @@ export default function TelaCategoria({ route, navigation }) {
 
   const coresCategoria = tema.categorias[categoria.chave];
 
-  const tarefasCategoria = tarefas.filter(
-    tarefa => tarefa.categoria === categoria.chave
-  );
-
   function adicionar() {
     const titulo = novaTarefa.trim();
 
@@ -94,7 +82,17 @@ export default function TelaCategoria({ route, navigation }) {
 
     ultimoEnvio.current = agora;
 
-    aoAdicionar(categoria.chave, titulo);
+    aoAdicionar({ categoria: categoria.chave, titulo });
+
+    setNovaTarefa('');
+  }
+
+  // Abre o editor completo já com o texto digitado.
+  function abrirEditor() {
+    navigation.navigate('EditorTarefa', {
+      categoria: categoria.chave,
+      titulo: novaTarefa.trim(),
+    });
 
     setNovaTarefa('');
   }
@@ -105,6 +103,11 @@ export default function TelaCategoria({ route, navigation }) {
         titulo={categoria.titulo}
         subtitulo={categoria.subtitulo}
         aoVoltar={aoVoltar}
+        acao={{
+          icone: 'options-outline',
+          rotulo: 'Nova tarefa com detalhes',
+          aoPressionar: abrirEditor,
+        }}
       />
 
       <View style={estilos.areaAdicionar}>
@@ -162,15 +165,20 @@ export default function TelaCategoria({ route, navigation }) {
           </Text>
         </View>
       </View>
+
+      {tarefasCategoria.length > 1 ? (
+        <Text style={estilos.dica}>
+          Segure uma tarefa para reordenar • deslize para excluir
+        </Text>
+      ) : null}
     </View>
   );
 
   return (
     <Tela>
-      <FlatList
-        data={tarefasCategoria}
-        keyExtractor={tarefa => tarefa.id}
-        renderItem={renderizarTarefa}
+      <ListaTarefas
+        tarefas={tarefasCategoria}
+        reordenavel
         ListHeaderComponent={cabecalhoLista}
         ListEmptyComponent={
           <EstadoVazio
@@ -181,7 +189,6 @@ export default function TelaCategoria({ route, navigation }) {
           />
         }
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       />
     </Tela>
@@ -232,7 +239,7 @@ const criarEstilos = tema =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: tema.espaco.lg,
+      marginBottom: tema.espaco.sm,
     },
 
     tituloSecao: {
@@ -252,5 +259,11 @@ const criarEstilos = tema =>
     textoContador: {
       ...tema.tipografia.numeros,
       fontSize: 13,
+    },
+
+    dica: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginBottom: tema.espaco.md,
     },
   });

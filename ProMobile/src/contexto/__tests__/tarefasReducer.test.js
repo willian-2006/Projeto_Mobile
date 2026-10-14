@@ -1,4 +1,4 @@
-import { ACOES, tarefasReducer } from '../tarefasReducer';
+import { ACOES, dadosReducer, tarefasReducer } from '../tarefasReducer';
 
 const tarefas = [
   {
@@ -66,12 +66,46 @@ describe('tarefasReducer', () => {
     });
   });
 
-  it('restaura a lista inteira', () => {
-    const salvas = [tarefas[1]];
+  it('reinsere a tarefa excluída na mesma posição', () => {
+    const semA = tarefasReducer(tarefas, { tipo: ACOES.excluir, id: 'a' });
 
+    const resultado = tarefasReducer(semA, {
+      tipo: ACOES.reinserir,
+      tarefa: tarefas[0],
+      indice: 0,
+    });
+
+    expect(resultado).toEqual(tarefas);
+  });
+
+  it('não duplica ao reinserir uma tarefa que já existe', () => {
     expect(
-      tarefasReducer(tarefas, { tipo: ACOES.restaurar, tarefas: salvas })
-    ).toBe(salvas);
+      tarefasReducer(tarefas, {
+        tipo: ACOES.reinserir,
+        tarefa: tarefas[0],
+        indice: 1,
+      })
+    ).toBe(tarefas);
+  });
+
+  it('limita o índice ao reinserir', () => {
+    const resultado = tarefasReducer([tarefas[1]], {
+      tipo: ACOES.reinserir,
+      tarefa: tarefas[0],
+      indice: 99,
+    });
+
+    expect(resultado.map(tarefa => tarefa.id)).toEqual(['b', 'a']);
+  });
+
+  it('reordena movendo uma tarefa para a posição de outra', () => {
+    const resultado = tarefasReducer(tarefas, {
+      tipo: ACOES.reordenar,
+      idOrigem: 'b',
+      idDestino: 'a',
+    });
+
+    expect(resultado.map(tarefa => tarefa.id)).toEqual(['b', 'a']);
   });
 
   it('não altera o estado com ação desconhecida', () => {
@@ -85,5 +119,45 @@ describe('tarefasReducer', () => {
     tarefasReducer(tarefas, { tipo: ACOES.excluir, id: 'b' });
 
     expect(tarefas).toEqual(copia);
+  });
+});
+
+describe('dadosReducer', () => {
+  const dados = { tarefas, historico: [], ultimoDia: '2026-10-13' };
+
+  it('restaura os dados inteiros', () => {
+    const salvos = { tarefas: [tarefas[1]], historico: [], ultimoDia: null };
+
+    expect(dadosReducer(dados, { tipo: ACOES.restaurar, dados: salvos })).toBe(
+      salvos
+    );
+  });
+
+  it('repassa as ações de tarefa', () => {
+    const resultado = dadosReducer(dados, { tipo: ACOES.excluir, id: 'a' });
+
+    expect(resultado.tarefas.map(tarefa => tarefa.id)).toEqual(['b']);
+    expect(resultado.historico).toBe(dados.historico);
+  });
+
+  it('não cria um estado novo com ação desconhecida', () => {
+    expect(dadosReducer(dados, { tipo: 'outra' })).toBe(dados);
+  });
+
+  it('vira o dia: registra o histórico e reabre as tarefas', () => {
+    const resultado = dadosReducer(dados, {
+      tipo: ACOES.virarDia,
+      hoje: '2026-10-14',
+      meta: 20,
+    });
+
+    expect(resultado.ultimoDia).toBe('2026-10-14');
+    expect(resultado.historico).toHaveLength(1);
+    expect(resultado.historico[0]).toMatchObject({
+      data: '2026-10-13',
+      pontos: 20,
+      meta: 20,
+    });
+    expect(resultado.tarefas.every(tarefa => !tarefa.concluida)).toBe(true);
   });
 });

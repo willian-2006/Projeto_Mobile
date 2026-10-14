@@ -10,6 +10,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -29,7 +31,22 @@ import {
 
 import { vibrarConclusao, vibrarExclusao } from '../servicos/vibracao';
 
-function ItemTarefa({ tarefa, indice, aoAlternar, aoExcluir }) {
+import { descreverRecorrencia } from '../utilitarios/tarefas';
+
+// Distância que o item precisa deslizar para ser excluído.
+const LIMITE_DESLIZE = 96;
+
+// Toque no círculo conclui; toque no texto abre o editor; segurar
+// (quando `aoSegurar` é passado) arrasta para reordenar; deslizar
+// para a esquerda exclui.
+function ItemTarefa({
+  tarefa,
+  indice,
+  aoAlternar,
+  aoExcluir,
+  aoAbrir,
+  aoSegurar,
+}) {
   const { tema } = useTema();
 
   const estilos = useEstilos(criarEstilos);
@@ -74,50 +91,101 @@ function ItemTarefa({ tarefa, indice, aoAlternar, aoExcluir }) {
     aoExcluir(tarefa.id);
   }
 
+  function renderizarAcaoExcluir() {
+    return (
+      <View style={estilos.acaoExcluir}>
+        <Ionicons name="trash-outline" size={20} color={tema.cores.erro} />
+
+        <Text style={estilos.textoExcluir}>Excluir</Text>
+      </View>
+    );
+  }
+
+  const recorrencia =
+    tarefa.recorrencia?.tipo !== 'diaria'
+      ? descreverRecorrencia(tarefa.recorrencia)
+      : null;
+
   return (
     <Animated.View entering={entradaCascata(indice)} exiting={saida}>
-      <Cartao vidro={false} style={estilos.container}>
-        <TouchableOpacity
-          style={estilos.areaTarefa}
-          onPress={alternar}
-          activeOpacity={0.7}
-          accessibilityRole="checkbox"
-          accessibilityState={{ checked: tarefa.concluida }}
-          accessibilityLabel={tarefa.titulo}
-          accessibilityHint={
-            tarefa.concluida ? 'Marcar como pendente' : 'Marcar como concluída'
-          }
-        >
-          <Animated.View style={[estilos.checkbox, estiloCheck]}>
-            <Animated.View
-              style={[StyleSheet.absoluteFill, estiloPreenchimento]}
-            >
-              <LinearGradient
-                colors={coresCategoria.gradiente}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={StyleSheet.absoluteFill}
-              />
-
-              <View style={estilos.iconeCheck}>
-                <Ionicons
-                  name="checkmark"
-                  size={16}
-                  color={tema.cores.textoSobreDestaque}
+      <Swipeable
+        renderRightActions={renderizarAcaoExcluir}
+        rightThreshold={LIMITE_DESLIZE}
+        friction={1.5}
+        overshootRight={false}
+        onSwipeableOpen={excluir}
+        containerStyle={estilos.deslize}
+      >
+        <Cartao vidro={false} style={estilos.container}>
+          <TouchableOpacity
+            style={estilos.areaCheck}
+            onPress={alternar}
+            activeOpacity={0.7}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: tarefa.concluida }}
+            accessibilityLabel={tarefa.titulo}
+            accessibilityHint={
+              tarefa.concluida
+                ? 'Marcar como pendente'
+                : 'Marcar como concluída'
+            }
+          >
+            <Animated.View style={[estilos.checkbox, estiloCheck]}>
+              <Animated.View
+                style={[StyleSheet.absoluteFill, estiloPreenchimento]}
+              >
+                <LinearGradient
+                  colors={coresCategoria.gradiente}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
                 />
-              </View>
-            </Animated.View>
-          </Animated.View>
 
-          <View style={estilos.conteudo}>
-            <Text
-              style={[
-                estilos.titulo,
-                tarefa.concluida && estilos.tituloConcluido,
-              ]}
-            >
-              {tarefa.titulo}
-            </Text>
+                <View style={estilos.iconeCheck}>
+                  <Ionicons
+                    name="checkmark"
+                    size={16}
+                    color={tema.cores.textoSobreDestaque}
+                  />
+                </View>
+              </Animated.View>
+            </Animated.View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={estilos.conteudo}
+            onPress={() => aoAbrir?.(tarefa.id)}
+            onLongPress={aoSegurar}
+            delayLongPress={250}
+            disabled={!aoAbrir && !aoSegurar}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Editar ${tarefa.titulo}`}
+            accessibilityHint={
+              aoSegurar ? 'Segure e arraste para reordenar' : undefined
+            }
+          >
+            <View style={estilos.linhaTitulo}>
+              {tarefa.prioridade === 'alta' && (
+                <Ionicons
+                  name="flag"
+                  size={13}
+                  color={tema.cores.alerta}
+                  style={estilos.iconePrioridade}
+                  accessibilityLabel="Prioridade alta"
+                />
+              )}
+
+              <Text
+                style={[
+                  estilos.titulo,
+                  tarefa.concluida && estilos.tituloConcluido,
+                ]}
+                numberOfLines={2}
+              >
+                {tarefa.titulo}
+              </Text>
+            </View>
 
             <View style={estilos.informacoes}>
               <View
@@ -127,7 +195,7 @@ function ItemTarefa({ tarefa, indice, aoAlternar, aoExcluir }) {
                 ]}
               />
 
-              <Text style={estilos.categoria}>
+              <Text style={estilos.detalhe}>
                 {categoria ? categoria.titulo : tarefa.categoria}
               </Text>
 
@@ -136,24 +204,50 @@ function ItemTarefa({ tarefa, indice, aoAlternar, aoExcluir }) {
               <Text style={[estilos.pontos, { color: coresCategoria.cor }]}>
                 +{tarefa.pontos} pts
               </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={estilos.botaoExcluir}
-          onPress={excluir}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel={`Excluir ${tarefa.titulo}`}
-        >
-          <Ionicons
-            name="trash-outline"
-            size={20}
-            color={tema.cores.textoSecundario}
-          />
-        </TouchableOpacity>
-      </Cartao>
+              {tarefa.horario ? (
+                <>
+                  <Text style={estilos.separador}>•</Text>
+
+                  <Ionicons
+                    name={tarefa.lembrete ? 'notifications' : 'time-outline'}
+                    size={12}
+                    color={tema.cores.textoSecundario}
+                  />
+
+                  <Text style={[estilos.detalhe, estilos.horario]}>
+                    {tarefa.horario}
+                  </Text>
+                </>
+              ) : null}
+
+              {recorrencia ? (
+                <>
+                  <Text style={estilos.separador}>•</Text>
+
+                  <Text style={estilos.detalhe} numberOfLines={1}>
+                    {recorrencia}
+                  </Text>
+                </>
+              ) : null}
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={estilos.botaoExcluir}
+            onPress={excluir}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Excluir ${tarefa.titulo}`}
+          >
+            <Ionicons
+              name="trash-outline"
+              size={20}
+              color={tema.cores.textoSecundario}
+            />
+          </TouchableOpacity>
+        </Cartao>
+      </Swipeable>
     </Animated.View>
   );
 }
@@ -162,21 +256,25 @@ export default memo(ItemTarefa);
 
 const criarEstilos = tema =>
   StyleSheet.create({
+    deslize: {
+      marginBottom: tema.espaco.sm + 2,
+      borderRadius: tema.raio.md,
+    },
+
     container: {
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: tema.raio.md,
-      paddingVertical: tema.espaco.md,
-      paddingLeft: tema.espaco.lg,
+      paddingVertical: tema.espaco.sm,
+      paddingLeft: tema.espaco.xs,
       paddingRight: tema.espaco.xs,
-      marginBottom: tema.espaco.sm + 2,
     },
 
-    areaTarefa: {
-      flex: 1,
-      flexDirection: 'row',
+    areaCheck: {
+      width: tema.areaToque + 4,
+      height: tema.areaToque,
+      justifyContent: 'center',
       alignItems: 'center',
-      minHeight: tema.areaToque,
     },
 
     checkbox: {
@@ -186,7 +284,6 @@ const criarEstilos = tema =>
       borderWidth: 2,
       borderColor: tema.cores.bordaForte,
       overflow: 'hidden',
-      marginRight: tema.espaco.md,
     },
 
     iconeCheck: {
@@ -197,10 +294,23 @@ const criarEstilos = tema =>
 
     conteudo: {
       flex: 1,
+      minHeight: tema.areaToque,
+      justifyContent: 'center',
+      paddingLeft: tema.espaco.xs,
+    },
+
+    linhaTitulo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+
+    iconePrioridade: {
+      marginRight: tema.espaco.xs,
     },
 
     titulo: {
       ...tema.tipografia.corpoMedio,
+      flexShrink: 1,
       color: tema.cores.texto,
     },
 
@@ -212,6 +322,7 @@ const criarEstilos = tema =>
     informacoes: {
       flexDirection: 'row',
       alignItems: 'center',
+      flexWrap: 'wrap',
       marginTop: tema.espaco.xs,
     },
 
@@ -222,9 +333,15 @@ const criarEstilos = tema =>
       marginRight: 6,
     },
 
-    categoria: {
+    detalhe: {
       ...tema.tipografia.legenda,
       color: tema.cores.textoSecundario,
+    },
+
+    horario: {
+      ...tema.tipografia.numeros,
+      fontFamily: tema.fontes.corpo,
+      marginLeft: 3,
     },
 
     separador: {
@@ -243,5 +360,20 @@ const criarEstilos = tema =>
       justifyContent: 'center',
       alignItems: 'center',
       marginLeft: tema.espaco.xs,
+    },
+
+    acaoExcluir: {
+      width: LIMITE_DESLIZE,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: tema.raio.md,
+      marginLeft: tema.espaco.sm,
+      backgroundColor: tema.cores.superficieElevada,
+    },
+
+    textoExcluir: {
+      ...tema.tipografia.legendaDestaque,
+      color: tema.cores.erro,
+      marginTop: 2,
     },
   });

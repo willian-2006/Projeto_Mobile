@@ -2,18 +2,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { CATEGORIAS } from '../dados/categorias';
 
+import { PREFERENCIAS_PADRAO } from '../dados/preferencias';
+
 import { tarefasIniciais } from '../dados/tarefas';
+
+import { chaveDia } from '../utilitarios/datas';
+
+import { normalizarPreferencias } from '../utilitarios/preferencias';
+
+import { normalizarTarefa } from '../utilitarios/tarefas';
 
 export const CHAVE_ARMAZENAMENTO = '@promobile/dados';
 
-export const VERSAO_ATUAL = 1;
+export const VERSAO_ATUAL = 2;
+
+export function dadosIniciais(hoje = chaveDia()) {
+  return {
+    tarefas: tarefasIniciais.map(tarefa => normalizarTarefa(tarefa, hoje)),
+    historico: [],
+    ultimoDia: null,
+  };
+}
 
 // Versão 0 (antes do esquema): lista solta de tarefas, com
 // `categoria` pelo título ('Saúde') e ids numéricos.
 function migrarDeV0(dados) {
   const lista = Array.isArray(dados) ? dados : dados.tarefas || [];
 
-  return lista.map(tarefa => {
+  const tarefas = lista.map(tarefa => {
     const categoria = CATEGORIAS.find(
       item =>
         item.titulo === tarefa.categoria || item.chave === tarefa.categoria
@@ -25,21 +41,51 @@ function migrarDeV0(dados) {
       categoria: categoria ? categoria.chave : tarefa.categoria,
     };
   });
+
+  return { versao: 1, tarefas };
 }
 
-// Recebe o que estava salvo (já convertido de JSON) e devolve a
-// lista de tarefas no formato da versão atual.
-export function migrarDados(dados) {
-  const versao =
+// Versão 1: { versao, tarefas } sem prioridade, horário, recorrência
+// nem histórico. As tarefas existentes viram diárias.
+function migrarDeV1(dados, hoje) {
+  return {
+    versao: 2,
+    tarefas: (dados.tarefas || []).map(tarefa =>
+      normalizarTarefa(tarefa, hoje)
+    ),
+    historico: [],
+    ultimoDia: null,
+  };
+}
+
+// Recebe o que estava salvo (já convertido de JSON) e devolve os
+// dados no formato da versão atual: { tarefas, historico, ultimoDia }.
+export function migrarDados(dados, hoje = chaveDia()) {
+  let atual = dados;
+
+  let versao =
     dados && !Array.isArray(dados) && typeof dados.versao === 'number'
       ? dados.versao
       : 0;
 
   if (versao === 0) {
-    return migrarDeV0(dados);
+    atual = migrarDeV0(atual);
+    versao = 1;
   }
 
-  return dados.tarefas;
+  if (versao === 1) {
+    atual = migrarDeV1(atual, hoje);
+  }
+
+  if (!Array.isArray(atual.tarefas)) {
+    return null;
+  }
+
+  return {
+    tarefas: atual.tarefas.map(tarefa => normalizarTarefa(tarefa, hoje)),
+    historico: Array.isArray(atual.historico) ? atual.historico : [],
+    ultimoDia: typeof atual.ultimoDia === 'string' ? atual.ultimoDia : null,
+  };
 }
 
 export async function carregarDados() {
@@ -47,16 +93,54 @@ export async function carregarDados() {
     const texto = await AsyncStorage.getItem(CHAVE_ARMAZENAMENTO);
 
     if (texto === null) {
-      return tarefasIniciais;
+      return dadosIniciais();
     }
 
-    const tarefas = migrarDados(JSON.parse(texto));
-
-    return Array.isArray(tarefas) ? tarefas : tarefasIniciais;
+    return migrarDados(JSON.parse(texto)) || dadosIniciais();
   } catch (erro) {
     console.warn('Não foi possível carregar os dados salvos.', erro);
 
-    return tarefasIniciais;
+    return dadosIniciais();
+  }
+}
+
+export async function salvarDados({ tarefas, historico, ultimoDia }) {
+  try {
+    await AsyncStorage.setItem(
+      CHAVE_ARMAZENAMENTO,
+      JSON.stringify({ versao: VERSAO_ATUAL, tarefas, historico, ultimoDia })
+    );
+  } catch (erro) {
+    console.warn('Não foi possível salvar os dados.', erro);
+  }
+}
+
+export const CHAVE_PREFERENCIAS = '@promobile/preferencias';
+
+export async function carregarPreferencias() {
+  try {
+    const texto = await AsyncStorage.getItem(CHAVE_PREFERENCIAS);
+
+    if (texto === null) {
+      return { ...PREFERENCIAS_PADRAO };
+    }
+
+    return normalizarPreferencias(JSON.parse(texto));
+  } catch (erro) {
+    console.warn('Não foi possível carregar as preferências.', erro);
+
+    return { ...PREFERENCIAS_PADRAO };
+  }
+}
+
+export async function salvarPreferencias(preferencias) {
+  try {
+    await AsyncStorage.setItem(
+      CHAVE_PREFERENCIAS,
+      JSON.stringify(preferencias)
+    );
+  } catch (erro) {
+    console.warn('Não foi possível salvar as preferências.', erro);
   }
 }
 
@@ -84,13 +168,27 @@ export async function salvarPreferenciaTema(preferencia) {
   }
 }
 
-export async function salvarDados(tarefas) {
+// Apaga tarefas, histórico e preferências (o tema é mantido).
+export async function limparDados() {
   try {
-    await AsyncStorage.setItem(
-      CHAVE_ARMAZENAMENTO,
-      JSON.stringify({ versao: VERSAO_ATUAL, tarefas })
-    );
+    await AsyncStorage.multiRemove([CHAVE_ARMAZENAMENTO, CHAVE_PREFERENCIAS]);
   } catch (erro) {
-    console.warn('Não foi possível salvar os dados.', erro);
+    console.warn('Não foi possível limpar os dados.', erro);
   }
+}
+
+// Tudo o que o app guarda, em JSON legível, para exportar.
+export function montarExportacao(dados, preferencias) {
+  return JSON.stringify(
+    {
+      app: 'ProMobile',
+      versao: VERSAO_ATUAL,
+      exportadoEm: new Date().toISOString(),
+      preferencias,
+      tarefas: dados.tarefas,
+      historico: dados.historico,
+    },
+    null,
+    2
+  );
 }

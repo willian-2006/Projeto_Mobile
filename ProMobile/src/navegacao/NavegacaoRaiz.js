@@ -16,6 +16,8 @@ import AbasInferiores from './AbasInferiores';
 
 import Carregando from '../componentes/Carregando';
 
+import { usePreferencias } from '../contexto/PreferenciasContexto';
+
 import { useTarefas } from '../contexto/TarefasContexto';
 
 import { useTema } from '../contexto/TemaContexto';
@@ -23,6 +25,8 @@ import { useTema } from '../contexto/TemaContexto';
 import { arquivosFontes } from '../estilos/fontes';
 
 import { useAvisoMeta } from '../hooks/useAvisoMeta';
+
+import EditorTarefa from '../telas/EditorTarefa';
 
 import TelaCategoria from '../telas/TelaCategoria';
 
@@ -32,6 +36,8 @@ const Pilha = createNativeStackNavigator();
 // na tela de categoria ele volta para as abas.
 export default function NavegacaoRaiz() {
   const { carregando: carregandoTarefas } = useTarefas();
+
+  const { carregando: carregandoPreferencias } = usePreferencias();
 
   const { tema, carregando: carregandoTema } = useTema();
 
@@ -60,6 +66,7 @@ export default function NavegacaoRaiz() {
 
   if (
     carregandoTarefas ||
+    carregandoPreferencias ||
     carregandoTema ||
     !(fontesCarregadas || erroFontes)
   ) {
@@ -85,6 +92,12 @@ export default function NavegacaoRaiz() {
         <Pilha.Screen name="Abas" component={AbasInferiores} />
 
         <Pilha.Screen name="Categoria" component={TelaCategoria} />
+
+        <Pilha.Screen
+          name="EditorTarefa"
+          component={EditorTarefa}
+          options={{ presentation: 'modal' }}
+        />
       </Pilha.Navigator>
     </NavigationContainer>
   );

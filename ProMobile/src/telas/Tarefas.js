@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
   ScrollView,
   StyleSheet,
 } from 'react-native';
@@ -13,7 +12,7 @@ import CabecalhoTela from '../componentes/CabecalhoTela';
 
 import EstadoVazio from '../componentes/EstadoVazio';
 
-import ItemTarefa from '../componentes/ItemTarefa';
+import ListaTarefas from '../componentes/ListaTarefas';
 
 import Tela from '../componentes/Tela';
 
@@ -29,12 +28,12 @@ const TODAS = 'todas';
 
 const filtros = [{ chave: TODAS, titulo: 'Todas' }, ...CATEGORIAS];
 
-export default function Tarefas() {
+export default function Tarefas({ navigation }) {
   const { tema } = useTema();
 
   const estilos = useEstilos(criarEstilos);
 
-  const { tarefas, aoAlternar, aoExcluir } = useTarefas();
+  const { tarefas } = useTarefas();
 
   const [filtro, setFiltro] = useState(TODAS);
 
@@ -44,18 +43,6 @@ export default function Tarefas() {
         ? tarefas
         : tarefas.filter(tarefa => tarefa.categoria === filtro),
     [tarefas, filtro]
-  );
-
-  const renderizarTarefa = useCallback(
-    ({ item, index }) => (
-      <ItemTarefa
-        tarefa={item}
-        indice={index}
-        aoAlternar={aoAlternar}
-        aoExcluir={aoExcluir}
-      />
-    ),
-    [aoAlternar, aoExcluir]
   );
 
   function corDoFiltro(chave) {
@@ -71,6 +58,14 @@ export default function Tarefas() {
         subtitulo={`${tarefasFiltradas.length} ${
           tarefasFiltradas.length === 1 ? 'tarefa' : 'tarefas'
         }`}
+        acao={{
+          icone: 'add',
+          rotulo: 'Nova tarefa',
+          aoPressionar: () =>
+            navigation.navigate('EditorTarefa', {
+              categoria: filtro === TODAS ? undefined : filtro,
+            }),
+        }}
       />
 
       <ScrollView
@@ -114,24 +109,28 @@ export default function Tarefas() {
           );
         })}
       </ScrollView>
+
+      {tarefasFiltradas.length > 1 ? (
+        <Text style={estilos.dica}>
+          Segure uma tarefa para reordenar • deslize para excluir
+        </Text>
+      ) : null}
     </View>
   );
 
   return (
     <Tela edges={['top']}>
-      <FlatList
-        data={tarefasFiltradas}
-        keyExtractor={tarefa => tarefa.id}
-        renderItem={renderizarTarefa}
+      <ListaTarefas
+        tarefas={tarefasFiltradas}
+        reordenavel
         ListHeaderComponent={cabecalhoLista}
         ListEmptyComponent={
           <EstadoVazio
             icone="search-outline"
             titulo="Nada por aqui ainda"
-            subtitulo="Escolha outro filtro ou crie uma tarefa nesta categoria"
+            subtitulo="Escolha outro filtro ou toque em + para criar uma tarefa"
           />
         }
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       />
     </Tela>
@@ -147,7 +146,13 @@ const criarEstilos = tema =>
     },
 
     filtros: {
-      paddingBottom: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.lg,
+    },
+
+    dica: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginBottom: tema.espaco.md,
     },
 
     pilula: {
