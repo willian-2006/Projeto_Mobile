@@ -14,18 +14,29 @@ import { normalizarTarefa } from '../utilitarios/tarefas';
 
 export const CHAVE_ARMAZENAMENTO = '@promobile/dados';
 
+export const CHAVE_RECUPERACAO = '@promobile/dados-recuperacao';
+
 export const VERSAO_ATUAL = 2;
+
+function ehObjeto(valor) {
+  return Boolean(valor) && typeof valor === 'object' && !Array.isArray(valor);
+}
+
+function listaDeObjetos(valor) {
+  return Array.isArray(valor) ? valor.filter(ehObjeto) : [];
+}
 
 export function dadosIniciais(hoje = chaveDia()) {
   return {
     tarefas: tarefasIniciais.map(tarefa => normalizarTarefa(tarefa, hoje)),
     historico: [],
     ultimoDia: null,
+    recorde: 0,
   };
 }
 
 function migrarDeV0(dados) {
-  const lista = Array.isArray(dados) ? dados : dados.tarefas || [];
+  const lista = listaDeObjetos(Array.isArray(dados) ? dados : dados.tarefas);
 
   const tarefas = lista.map(tarefa => {
     const categoria = CATEGORIAS.find(
@@ -46,8 +57,8 @@ function migrarDeV0(dados) {
 function migrarDeV1(dados, hoje) {
   return {
     versao: 2,
-    tarefas: (dados.tarefas || []).map(tarefa =>
-      normalizarTarefa(tarefa, hoje)
+    tarefas: listaDeObjetos(dados.tarefas).map(tarefa =>
+      normalizarTarefa({ ...tarefa, concluida: false }, hoje)
     ),
     historico: [],
     ultimoDia: null,
@@ -71,38 +82,71 @@ export function migrarDados(dados, hoje = chaveDia()) {
     atual = migrarDeV1(atual, hoje);
   }
 
-  if (!Array.isArray(atual.tarefas)) {
+  if (!ehObjeto(atual) || !Array.isArray(atual.tarefas)) {
     return null;
   }
 
   return {
-    tarefas: atual.tarefas.map(tarefa => normalizarTarefa(tarefa, hoje)),
-    historico: Array.isArray(atual.historico) ? atual.historico : [],
+    tarefas: listaDeObjetos(atual.tarefas).map(tarefa =>
+      normalizarTarefa(tarefa, hoje)
+    ),
+    historico: listaDeObjetos(atual.historico).filter(
+      registro => typeof registro.data === 'string'
+    ),
     ultimoDia: typeof atual.ultimoDia === 'string' ? atual.ultimoDia : null,
+    recorde: Number.isFinite(atual.recorde) ? atual.recorde : 0,
   };
 }
 
-export async function carregarDados() {
+async function guardarParaRecuperacao(texto) {
   try {
-    const texto = await AsyncStorage.getItem(CHAVE_ARMAZENAMENTO);
-
-    if (texto === null) {
-      return dadosIniciais();
-    }
-
-    return migrarDados(JSON.parse(texto)) || dadosIniciais();
+    await AsyncStorage.setItem(CHAVE_RECUPERACAO, texto);
   } catch (erro) {
-    console.warn('Não foi possível carregar os dados salvos.', erro);
-
-    return dadosIniciais();
+    console.warn('Não foi possível guardar a cópia de recuperação.', erro);
   }
 }
 
-export async function salvarDados({ tarefas, historico, ultimoDia }) {
+export async function carregarDados() {
+  let texto;
+
+  try {
+    texto = await AsyncStorage.getItem(CHAVE_ARMAZENAMENTO);
+  } catch (erro) {
+    console.warn('Não foi possível ler os dados salvos.', erro);
+
+    return { dados: dadosIniciais(), podeSalvar: false };
+  }
+
+  if (texto === null) {
+    return { dados: dadosIniciais(), podeSalvar: true };
+  }
+
+  try {
+    const dados = migrarDados(JSON.parse(texto));
+
+    if (dados) {
+      return { dados, podeSalvar: true };
+    }
+  } catch (erro) {
+    console.warn('Os dados salvos estão corrompidos.', erro);
+  }
+
+  await guardarParaRecuperacao(texto);
+
+  return { dados: dadosIniciais(), podeSalvar: true };
+}
+
+export async function salvarDados({ tarefas, historico, ultimoDia, recorde }) {
   try {
     await AsyncStorage.setItem(
       CHAVE_ARMAZENAMENTO,
-      JSON.stringify({ versao: VERSAO_ATUAL, tarefas, historico, ultimoDia })
+      JSON.stringify({
+        versao: VERSAO_ATUAL,
+        tarefas,
+        historico,
+        ultimoDia,
+        recorde,
+      })
     );
   } catch (erro) {
     console.warn('Não foi possível salvar os dados.', erro);
@@ -112,18 +156,29 @@ export async function salvarDados({ tarefas, historico, ultimoDia }) {
 export const CHAVE_PREFERENCIAS = '@promobile/preferencias';
 
 export async function carregarPreferencias() {
+  let texto;
+
   try {
-    const texto = await AsyncStorage.getItem(CHAVE_PREFERENCIAS);
-
-    if (texto === null) {
-      return { ...PREFERENCIAS_PADRAO };
-    }
-
-    return normalizarPreferencias(JSON.parse(texto));
+    texto = await AsyncStorage.getItem(CHAVE_PREFERENCIAS);
   } catch (erro) {
-    console.warn('Não foi possível carregar as preferências.', erro);
+    console.warn('Não foi possível ler as preferências.', erro);
 
-    return { ...PREFERENCIAS_PADRAO };
+    return { preferencias: { ...PREFERENCIAS_PADRAO }, podeSalvar: false };
+  }
+
+  if (texto === null) {
+    return { preferencias: { ...PREFERENCIAS_PADRAO }, podeSalvar: true };
+  }
+
+  try {
+    return {
+      preferencias: normalizarPreferencias(JSON.parse(texto)),
+      podeSalvar: true,
+    };
+  } catch (erro) {
+    console.warn('As preferências salvas estão corrompidas.', erro);
+
+    return { preferencias: { ...PREFERENCIAS_PADRAO }, podeSalvar: true };
   }
 }
 
@@ -164,7 +219,12 @@ export async function salvarPreferenciaTema(preferencia) {
 
 export async function limparDados() {
   try {
-    await AsyncStorage.multiRemove([CHAVE_ARMAZENAMENTO, CHAVE_PREFERENCIAS]);
+    await AsyncStorage.multiRemove([
+      CHAVE_ARMAZENAMENTO,
+      CHAVE_PREFERENCIAS,
+      CHAVE_TEMA,
+      CHAVE_RECUPERACAO,
+    ]);
   } catch (erro) {
     console.warn('Não foi possível limpar os dados.', erro);
   }

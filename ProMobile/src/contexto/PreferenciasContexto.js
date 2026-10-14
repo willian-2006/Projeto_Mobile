@@ -23,12 +23,15 @@ export function PreferenciasProvider({ children }) {
 
   const [carregando, setCarregando] = useState(true);
 
+  const [podeSalvar, setPodeSalvar] = useState(false);
+
   useEffect(() => {
     let ativo = true;
 
-    carregarPreferencias().then(salvas => {
+    carregarPreferencias().then(resultado => {
       if (ativo) {
-        setPreferencias(salvas);
+        setPreferencias(resultado.preferencias);
+        setPodeSalvar(resultado.podeSalvar);
         setCarregando(false);
       }
     });
@@ -39,10 +42,10 @@ export function PreferenciasProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (!carregando) {
+    if (!carregando && podeSalvar) {
       salvarPreferencias(preferencias);
     }
-  }, [preferencias, carregando]);
+  }, [preferencias, carregando, podeSalvar]);
 
   const aoAtualizarPreferencias = useCallback(alteracoes => {
     setPreferencias(atuais =>
@@ -52,6 +55,7 @@ export function PreferenciasProvider({ children }) {
 
   const aoRedefinirPreferencias = useCallback(() => {
     setPreferencias({ ...PREFERENCIAS_PADRAO });
+    setPodeSalvar(true);
   }, []);
 
   const valor = useMemo(

@@ -1,5 +1,7 @@
 import { calcularEstatisticas } from './pontuacao';
 
+import { calcularSequencia } from './sequencia';
+
 import { filtrarTarefasDoDia } from './tarefas';
 
 export const LIMITE_HISTORICO = 400;
@@ -38,12 +40,19 @@ export function virarDia(dados, hoje, meta) {
 
   const registro = registrarDia(tarefas, ultimoDia, meta);
 
-  const novoHistorico = [
+  const historicoCompleto = [
     ...historico.filter(item => item.data !== ultimoDia),
     registro,
-  ]
-    .sort((a, b) => (a.data < b.data ? -1 : 1))
-    .slice(-LIMITE_HISTORICO);
+  ].sort((a, b) => (a.data < b.data ? -1 : 1));
+
+  const recorde = calcularSequencia(
+    historicoCompleto,
+    ultimoDia,
+    false,
+    dados.recorde
+  ).recorde;
+
+  const novoHistorico = historicoCompleto.slice(-LIMITE_HISTORICO);
 
   const novasTarefas = tarefas
     .filter(
@@ -57,5 +66,6 @@ export function virarDia(dados, hoje, meta) {
     tarefas: novasTarefas,
     historico: novoHistorico,
     ultimoDia: hoje,
+    recorde,
   };
 }

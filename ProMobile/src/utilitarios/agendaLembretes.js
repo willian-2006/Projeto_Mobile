@@ -52,7 +52,10 @@ export function montarAgenda(tarefas, preferencias, agora = new Date()) {
 
     const ehHoje = indice === 0;
 
-    const tarefasDoDia = filtrarTarefasDoDia(tarefas, dia);
+    const tarefasDoDia = filtrarTarefasDoDia(tarefas, dia).filter(
+      tarefa =>
+        ehHoje || !(tarefa.recorrencia?.tipo === 'unica' && tarefa.concluida)
+    );
 
     tarefasDoDia.forEach(tarefa => {
       if (!tarefa.lembrete || !tarefa.horario || (ehHoje && tarefa.concluida)) {

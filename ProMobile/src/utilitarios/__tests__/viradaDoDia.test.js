@@ -109,3 +109,34 @@ describe('virarDia', () => {
     expect(resultado.historico.at(-1).data).toBe('2026-10-14');
   });
 });
+
+describe('recorde na virada do dia', () => {
+  const batido = data => ({ data, pontos: 50, meta: 50 });
+
+  it('calcula o recorde com o histórico completo', () => {
+    const historico = [batido('2026-10-12'), batido('2026-10-13')];
+
+    const resultado = virarDia(
+      { tarefas: [diaria('a', 50, true)], historico, ultimoDia: '2026-10-14' },
+      '2026-10-15',
+      50
+    );
+
+    expect(resultado.recorde).toBe(3);
+  });
+
+  it('não perde o recorde quando o histórico é cortado', () => {
+    const resultado = virarDia(
+      {
+        tarefas: [],
+        historico: [],
+        ultimoDia: '2026-10-14',
+        recorde: 120,
+      },
+      '2026-10-15',
+      50
+    );
+
+    expect(resultado.recorde).toBe(120);
+  });
+});

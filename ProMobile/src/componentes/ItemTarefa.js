@@ -43,6 +43,7 @@ function ItemTarefa({
   aoAbrir,
   aoSegurar,
   animarEntrada = true,
+  foraDoDia = false,
 }) {
   const { tema } = useTema();
 
@@ -119,17 +120,29 @@ function ItemTarefa({
           <TouchableOpacity
             style={estilos.areaCheck}
             onPress={alternar}
+            disabled={foraDoDia}
             activeOpacity={0.7}
             accessibilityRole="checkbox"
-            accessibilityState={{ checked: tarefa.concluida }}
+            accessibilityState={{
+              checked: tarefa.concluida,
+              disabled: foraDoDia,
+            }}
             accessibilityLabel={tarefa.titulo}
             accessibilityHint={
-              tarefa.concluida
-                ? 'Marcar como pendente'
-                : 'Marcar como concluída'
+              foraDoDia
+                ? 'Esta tarefa não é para hoje'
+                : tarefa.concluida
+                  ? 'Marcar como pendente'
+                  : 'Marcar como concluída'
             }
           >
-            <Animated.View style={[estilos.checkbox, estiloCheck]}>
+            <Animated.View
+              style={[
+                estilos.checkbox,
+                foraDoDia && estilos.checkboxForaDoDia,
+                estiloCheck,
+              ]}
+            >
               <Animated.View
                 style={[StyleSheet.absoluteFill, estiloPreenchimento]}
               >
@@ -229,6 +242,14 @@ function ItemTarefa({
                   </Text>
                 </>
               ) : null}
+
+              {foraDoDia ? (
+                <>
+                  <Text style={estilos.separador}>•</Text>
+
+                  <Text style={estilos.foraDoDia}>Hoje não</Text>
+                </>
+              ) : null}
             </View>
           </TouchableOpacity>
 
@@ -283,6 +304,15 @@ const criarEstilos = tema =>
       borderWidth: 2,
       borderColor: tema.cores.bordaForte,
       overflow: 'hidden',
+    },
+
+    checkboxForaDoDia: {
+      borderStyle: 'dashed',
+    },
+
+    foraDoDia: {
+      ...tema.tipografia.legendaDestaque,
+      color: tema.cores.textoSecundario,
     },
 
     iconeCheck: {

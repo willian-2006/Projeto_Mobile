@@ -4,7 +4,12 @@ export function metaBatida(registro) {
   return registro.meta > 0 && registro.pontos >= registro.meta;
 }
 
-export function calcularSequencia(historico, hoje, metaBatidaHoje) {
+export function calcularSequencia(
+  historico,
+  hoje,
+  metaBatidaHoje,
+  recordeSalvo = 0
+) {
   const diasBatidos = new Set(
     historico.filter(metaBatida).map(registro => registro.data)
   );
@@ -39,5 +44,8 @@ export function calcularSequencia(historico, hoje, metaBatidaHoje) {
     anterior = data;
   });
 
-  return { atual, recorde: Math.max(recorde, atual) };
+  return {
+    atual,
+    recorde: Math.max(recorde, atual, Number(recordeSalvo) || 0),
+  };
 }

@@ -4,6 +4,7 @@ import {
   moverTarefa,
   normalizarTarefa,
   tarefaDoDia,
+  tarefaParaDesfazer,
 } from '../tarefas';
 
 const HOJE = '2026-10-14';
@@ -140,5 +141,36 @@ describe('descreverRecorrencia', () => {
     expect(descreverRecorrencia({ tipo: 'semanal', dias: [1, 3] })).toBe(
       'Seg, Qua'
     );
+  });
+});
+
+describe('tarefaParaDesfazer', () => {
+  const concluida = {
+    id: 'a',
+    concluida: true,
+    recorrencia: { tipo: 'diaria', dias: [] },
+  };
+
+  it('no mesmo dia devolve a tarefa como estava', () => {
+    expect(tarefaParaDesfazer(concluida, HOJE, HOJE)).toBe(concluida);
+  });
+
+  it('depois da virada, volta como pendente', () => {
+    expect(tarefaParaDesfazer(concluida, '2026-10-13', HOJE)).toEqual({
+      ...concluida,
+      concluida: false,
+    });
+  });
+
+  it('não ressuscita a tarefa de uma vez já concluída', () => {
+    const unica = { ...concluida, recorrencia: { tipo: 'unica', dias: [] } };
+
+    expect(tarefaParaDesfazer(unica, '2026-10-13', HOJE)).toBeNull();
+  });
+
+  it('tarefa pendente volta igual mesmo depois da virada', () => {
+    const pendente = { ...concluida, concluida: false };
+
+    expect(tarefaParaDesfazer(pendente, '2026-10-13', HOJE)).toBe(pendente);
   });
 });

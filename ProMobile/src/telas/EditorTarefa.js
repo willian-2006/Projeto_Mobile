@@ -56,9 +56,15 @@ export default function EditorTarefa({ route, navigation }) {
 
   const parametros = route.params || {};
 
-  const existente = parametros.id
+  const encontrada = parametros.id
     ? tarefas.find(tarefa => tarefa.id === parametros.id)
     : null;
+
+  const [tarefaInicial] = useState(encontrada);
+
+  const [excluindo, setExcluindo] = useState(false);
+
+  const existente = encontrada ?? (excluindo ? tarefaInicial : null);
 
   const [campos, setCampos] = useState(() => ({
     titulo: existente?.titulo ?? parametros.titulo ?? '',
@@ -108,6 +114,7 @@ export default function EditorTarefa({ route, navigation }) {
   }
 
   function excluir() {
+    setExcluindo(true);
     navigation.goBack();
     aoExcluir(existente.id);
   }
@@ -347,11 +354,13 @@ const criarEstilos = tema =>
 
     dias: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      gap: tema.espaco.xs,
       marginTop: tema.espaco.md,
     },
 
     dia: {
+      flex: 1,
+      minWidth: 0,
       paddingHorizontal: 0,
     },
 

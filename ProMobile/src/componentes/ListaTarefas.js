@@ -14,6 +14,8 @@ import { useTarefas } from '../contexto/TarefasContexto';
 
 import { vibrarSelecao } from '../servicos/vibracao';
 
+import { tarefaDoDia } from '../utilitarios/tarefas';
+
 const DURACAO_ENTRADA = 1000;
 
 function ItemReordenavel(propriedades) {
@@ -34,7 +36,7 @@ function extrairChave(tarefa) {
 export default function ListaTarefas({ tarefas, reordenavel, ...resto }) {
   const navigation = useNavigation();
 
-  const { aoAlternar, aoExcluir, aoReordenar } = useTarefas();
+  const { aoAlternar, aoExcluir, aoReordenar, hoje } = useTarefas();
 
   const [animarEntrada, setAnimarEntrada] = useState(true);
 
@@ -64,10 +66,11 @@ export default function ListaTarefas({ tarefas, reordenavel, ...resto }) {
           aoExcluir={aoExcluir}
           aoAbrir={aoAbrir}
           animarEntrada={animarEntrada}
+          foraDoDia={!tarefaDoDia(item, hoje)}
         />
       );
     },
-    [reordenavel, aoAlternar, aoExcluir, aoAbrir, animarEntrada]
+    [reordenavel, aoAlternar, aoExcluir, aoAbrir, animarEntrada, hoje]
   );
 
   const aoSoltar = useCallback(

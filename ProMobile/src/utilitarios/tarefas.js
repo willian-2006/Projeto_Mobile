@@ -17,7 +17,9 @@ function normalizarRecorrencia(recorrencia) {
     return { tipo, dias: [] };
   }
 
-  const dias = [...new Set(recorrencia.dias || [])]
+  const dias = [
+    ...new Set(Array.isArray(recorrencia.dias) ? recorrencia.dias : []),
+  ]
     .filter(dia => Number.isInteger(dia) && dia >= 0 && dia <= 6)
     .sort((a, b) => a - b);
 
@@ -95,4 +97,16 @@ export function descreverRecorrencia(recorrencia) {
   }
 
   return 'Todo dia';
+}
+
+export function tarefaParaDesfazer(tarefa, diaDaExclusao, diaAtual) {
+  if (diaDaExclusao === diaAtual || !tarefa.concluida) {
+    return tarefa;
+  }
+
+  if (tarefa.recorrencia?.tipo === 'unica') {
+    return null;
+  }
+
+  return { ...tarefa, concluida: false };
 }

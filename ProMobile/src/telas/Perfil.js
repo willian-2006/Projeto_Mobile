@@ -109,6 +109,7 @@ export default function Perfil({ navigation }) {
             await limparDados();
             aoRedefinirTarefas();
             aoRedefinirPreferencias();
+            aoMudarPreferencia('sistema');
           },
         },
       ]

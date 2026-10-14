@@ -142,4 +142,22 @@ describe('montarAgenda', () => {
       'Falta 1 ponto para a meta. 1 tarefa por fazer.'
     );
   });
+
+  it('não lembra nos próximos dias de uma tarefa de uma vez já concluída', () => {
+    const agenda = montarAgenda(
+      [
+        tarefa('a', {
+          concluida: true,
+          recorrencia: { tipo: 'unica', dias: [] },
+        }),
+      ],
+      { ...preferencias, resumoDiario: true, horarioResumo: '20:00' },
+      AGORA
+    );
+
+    expect(agenda.some(item => item.id.startsWith('tarefa-a'))).toBe(false);
+    expect(agenda.find(item => item.id === 'resumo-2026-10-15').corpo).toBe(
+      'Que tal planejar o dia? Sua meta é de 30 pontos.'
+    );
+  });
 });

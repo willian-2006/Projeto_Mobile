@@ -65,3 +65,17 @@ describe('calcularSequencia', () => {
     );
   });
 });
+
+describe('recorde salvo', () => {
+  it('mantém um recorde maior que o histórico atual', () => {
+    expect(calcularSequencia([dia('2026-10-13', 60)], HOJE, false, 30)).toEqual(
+      { atual: 1, recorde: 30 }
+    );
+  });
+
+  it('ignora um recorde salvo inválido', () => {
+    expect(
+      calcularSequencia([dia('2026-10-13', 60)], HOJE, false, undefined).recorde
+    ).toBe(1);
+  });
+});

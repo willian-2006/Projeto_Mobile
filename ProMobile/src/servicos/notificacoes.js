@@ -66,7 +66,7 @@ export async function permissaoConcedida() {
   }
 }
 
-export async function agendarLembretes(agenda) {
+async function executarAgenda(agenda) {
   try {
     const Notificacoes = notificacoes();
 
@@ -96,10 +96,26 @@ export async function agendarLembretes(agenda) {
   }
 }
 
-export async function cancelarLembretes() {
+async function executarCancelamento() {
   try {
     await notificacoes().cancelAllScheduledNotificationsAsync();
   } catch (erro) {
     console.warn('Não foi possível cancelar os lembretes.', erro);
   }
+}
+
+let fila = Promise.resolve();
+
+function enfileirar(tarefa) {
+  fila = fila.then(tarefa, tarefa);
+
+  return fila;
+}
+
+export function agendarLembretes(agenda) {
+  return enfileirar(() => executarAgenda(agenda));
+}
+
+export function cancelarLembretes() {
+  return enfileirar(executarCancelamento);
 }

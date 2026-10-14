@@ -32,11 +32,20 @@ import {
 
 import { calcularSequencia } from '../utilitarios/sequencia';
 
-import { filtrarTarefasDoDia, normalizarTarefa } from '../utilitarios/tarefas';
+import {
+  filtrarTarefasDoDia,
+  normalizarTarefa,
+  tarefaParaDesfazer,
+} from '../utilitarios/tarefas';
 
 const TarefasContexto = createContext(null);
 
-const DADOS_VAZIOS = { tarefas: [], historico: [], ultimoDia: null };
+const DADOS_VAZIOS = {
+  tarefas: [],
+  historico: [],
+  ultimoDia: null,
+  recorde: 0,
+};
 
 export function TarefasProvider({ children }) {
   const { preferencias, carregando: carregandoPreferencias } =
@@ -50,6 +59,8 @@ export function TarefasProvider({ children }) {
 
   const [carregando, setCarregando] = useState(true);
 
+  const [podeSalvar, setPodeSalvar] = useState(false);
+
   const dadosAtuais = useRef(dados);
 
   useEffect(() => {
@@ -59,9 +70,10 @@ export function TarefasProvider({ children }) {
   useEffect(() => {
     let ativo = true;
 
-    carregarDados().then(dadosSalvos => {
+    carregarDados().then(resultado => {
       if (ativo) {
-        despachar({ tipo: ACOES.restaurar, dados: dadosSalvos });
+        despachar({ tipo: ACOES.restaurar, dados: resultado.dados });
+        setPodeSalvar(resultado.podeSalvar);
         setCarregando(false);
       }
     });
@@ -78,10 +90,10 @@ export function TarefasProvider({ children }) {
   }, [hoje, carregando, carregandoPreferencias, preferencias.meta]);
 
   useEffect(() => {
-    if (!carregando) {
+    if (!carregando && podeSalvar) {
       salvarDados(dados);
     }
-  }, [dados, carregando]);
+  }, [dados, carregando, podeSalvar]);
 
   const aoAdicionar = useCallback(
     novaTarefa => {
@@ -112,12 +124,24 @@ export function TarefasProvider({ children }) {
 
       const tarefa = dadosAtuais.current.tarefas[indice];
 
+      const diaDaExclusao = dadosAtuais.current.ultimoDia;
+
       despachar({ tipo: ACOES.excluir, id });
 
       mostrarAviso({
         mensagem: `"${tarefa.titulo}" excluída`,
         rotuloAcao: 'Desfazer',
-        aoAcionar: () => despachar({ tipo: ACOES.reinserir, tarefa, indice }),
+        aoAcionar: () => {
+          const restaurada = tarefaParaDesfazer(
+            tarefa,
+            diaDaExclusao,
+            dadosAtuais.current.ultimoDia
+          );
+
+          if (restaurada) {
+            despachar({ tipo: ACOES.reinserir, tarefa: restaurada, indice });
+          }
+        },
       });
     },
     [mostrarAviso]
@@ -151,6 +175,7 @@ export function TarefasProvider({ children }) {
       tipo: ACOES.restaurar,
       dados: { ...dadosIniciais(hoje), ultimoDia: hoje },
     });
+    setPodeSalvar(true);
   }, [hoje]);
 
   const tarefasDeHoje = useMemo(
@@ -163,6 +188,7 @@ export function TarefasProvider({ children }) {
       tarefas: dados.tarefas,
       tarefasDeHoje,
       historico: dados.historico,
+      recordeSalvo: dados.recorde,
       hoje,
       carregando,
       aoAdicionar,
@@ -223,12 +249,12 @@ export function useEstatisticas() {
 }
 
 export function useSequencia() {
-  const { historico, hoje } = useTarefas();
+  const { historico, hoje, recordeSalvo } = useTarefas();
 
   const { metaBatida } = useEstatisticas();
 
   return useMemo(
-    () => calcularSequencia(historico, hoje, metaBatida),
-    [historico, hoje, metaBatida]
+    () => calcularSequencia(historico, hoje, metaBatida, recordeSalvo),
+    [historico, hoje, metaBatida, recordeSalvo]
   );
 }

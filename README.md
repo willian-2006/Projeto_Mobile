@@ -108,3 +108,9 @@ Toda a regra de negócio (pontuação, repetição de tarefas, virada do dia, se
 
 - **`npm audit`:** acusa vulnerabilidades em ferramentas de desenvolvimento (CLI do Expo e Jest), como `braces`, `node-forge` e `sprintf-js`. Esses pacotes **não vão para o app**, e ainda não existe versão corrigida de vários deles. **Não rode `npm audit fix --force`**: ele "corrige" voltando o Expo para a versão 44, o que quebra o projeto.
 - **Web:** o app foi feito para Android e iOS. A versão web não é suportada.
+
+## Licença
+
+Distribuído sob a licença MIT. Veja o arquivo [LICENSE](LICENSE).
+
+© 2026 Willian Brandão

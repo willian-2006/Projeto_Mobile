@@ -1,6 +1,7 @@
 {
   "name": "promobile",
-  "license": "0BSD",
+  "license": "MIT",
+  "author": "Willian Brandão",
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
@@ -35,7 +36,6 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
