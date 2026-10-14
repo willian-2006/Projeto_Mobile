@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 
 import {
-  SafeAreaView,
   View,
   Text,
   ScrollView,
   StyleSheet,
   StatusBar,
 } from 'react-native';
+
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+} from 'react-native-safe-area-context';
 
 import Cabecalho from './src/componentes/Cabecalho';
 
@@ -31,33 +35,37 @@ import Trabalho from './src/telas/Trabalho';
 
 import Devocional from './src/telas/Devocional';
 
+import { gerarId } from './src/utilitarios/gerarId';
+
+import {
+  calcularPontosMaximos,
+  calcularPontosAtuais,
+  contarConcluidas,
+} from './src/utilitarios/pontuacao';
+
 export default function App() {
+  return (
+    <SafeAreaProvider>
+      <Principal />
+    </SafeAreaProvider>
+  );
+}
+
+function Principal() {
   const [tarefas, setTarefas] =
     useState(tarefasIniciais);
 
   const [telaAtual, setTelaAtual] =
     useState('inicio');
 
-  const pontosMaximos = tarefas.reduce(
-    (total, tarefa) => {
-      return total + tarefa.pontos;
-    },
-    0
-  );
+  const pontosMaximos =
+    calcularPontosMaximos(tarefas);
 
-  const pontosAtuais = tarefas
-    .filter(tarefa => tarefa.concluida)
-    .reduce(
-      (total, tarefa) => {
-        return total + tarefa.pontos;
-      },
-      0
-    );
+  const pontosAtuais =
+    calcularPontosAtuais(tarefas);
 
   const tarefasConcluidas =
-    tarefas.filter(
-      tarefa => tarefa.concluida
-    ).length;
+    contarConcluidas(tarefas);
 
   function alternarTarefa(id) {
     setTarefas(tarefasAtuais => {
@@ -76,7 +84,7 @@ export default function App() {
 
   function adicionarTarefa(categoria, titulo) {
     const novaTarefa = {
-      id: Date.now(),
+      id: gerarId(),
       titulo: titulo.trim(),
       categoria: categoria,
       pontos: 10,

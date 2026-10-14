@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import {
-  SafeAreaView,
   View,
   Text,
   TextInput,
@@ -11,11 +10,17 @@ import {
   StatusBar,
 } from 'react-native';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { Ionicons } from '@expo/vector-icons';
 
 import ItemTarefa from '../componentes/ItemTarefa';
 
 import { cores } from '../estilos/cores';
+
+// Ignora um segundo envio logo após o primeiro
+// (onSubmitEditing + toque no botão).
+const INTERVALO_MINIMO_ENVIO = 500;
 
 export default function Saude({
   tarefas,
@@ -26,16 +31,27 @@ export default function Saude({
 }) {
   const [novaTarefa, setNovaTarefa] = useState('');
 
+  const ultimoEnvio = useRef(0);
+
   const tarefasSaude = tarefas.filter(
     tarefa => tarefa.categoria === 'Saúde'
   );
 
   function adicionar() {
-    if (novaTarefa.trim() === '') {
+    const titulo = novaTarefa.trim();
+
+    const agora = Date.now();
+
+    if (
+      titulo === '' ||
+      agora - ultimoEnvio.current < INTERVALO_MINIMO_ENVIO
+    ) {
       return;
     }
 
-    aoAdicionar('Saúde', novaTarefa);
+    ultimoEnvio.current = agora;
+
+    aoAdicionar('Saúde', titulo);
 
     setNovaTarefa('');
   }
@@ -87,6 +103,7 @@ export default function Saude({
               value={novaTarefa}
               onChangeText={setNovaTarefa}
               onSubmitEditing={adicionar}
+              maxLength={80}
             />
 
             <TouchableOpacity

@@ -1,0 +1,16 @@
+# dependências
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# logs e sistema
+*.log
+npm-debug.*
+.DS_Store
+Thumbs.db
+
+# ambiente local
+.env*.local

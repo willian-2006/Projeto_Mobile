@@ -10,14 +10,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { cores } from '../estilos/cores';
 
+import { calcularPorcentagem } from '../utilitarios/pontuacao';
+
 export default function CartaoProgresso({
   pontosAtuais,
   pontosMaximos,
 }) {
 
-  const porcentagem = Math.min(
-    Math.round((pontosAtuais / pontosMaximos) * 100),
-    100
+  const porcentagem = calcularPorcentagem(
+    pontosAtuais,
+    pontosMaximos
   );
 
   const pontosRestantes = Math.max(
