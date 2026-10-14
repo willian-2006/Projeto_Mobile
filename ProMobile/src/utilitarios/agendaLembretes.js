@@ -4,6 +4,8 @@ import { adicionarDias, chaveDia, dataComHorario } from './datas';
 
 import { filtrarTarefasDoDia } from './tarefas';
 
+import { contar } from './textos';
+
 // Agenda notificações com data exata para os próximos dias (em vez
 // de repetições do sistema) para poder pular a tarefa já concluída
 // hoje e o resumo de um dia com a meta batida. Ela é refeita a cada
@@ -13,14 +15,10 @@ export const DIAS_AGENDADOS = 7;
 // O iOS guarda no máximo 64 notificações agendadas por app.
 export const LIMITE_NOTIFICACOES = 60;
 
-function textoTarefas(quantidade) {
-  return quantidade === 1 ? '1 tarefa' : `${quantidade} tarefas`;
-}
-
 function resumoDoDia(tarefasDoDia, meta, ehHoje) {
   if (!ehHoje) {
     return tarefasDoDia.length > 0
-      ? `${textoTarefas(tarefasDoDia.length)} para hoje. Meta: ${meta} pontos.`
+      ? `${contar(tarefasDoDia.length, 'tarefa')} para hoje. Meta: ${meta} pontos.`
       : `Que tal planejar o dia? Sua meta é de ${meta} pontos.`;
   }
 
@@ -36,11 +34,13 @@ function resumoDoDia(tarefasDoDia, meta, ehHoje) {
 
   const pendentes = tarefasDoDia.filter(tarefa => !tarefa.concluida).length;
 
+  const falta = `${faltam === 1 ? 'Falta' : 'Faltam'} ${contar(faltam, 'ponto')}`;
+
   if (pendentes === 0) {
-    return `Faltam ${faltam} pontos para a meta de hoje.`;
+    return `${falta} para a meta de hoje.`;
   }
 
-  return `Faltam ${faltam} pontos para a meta. ${textoTarefas(pendentes)} por fazer.`;
+  return `${falta} para a meta. ${contar(pendentes, 'tarefa')} por fazer.`;
 }
 
 // Lista de { id, titulo, corpo, data } a agendar, em ordem de data.

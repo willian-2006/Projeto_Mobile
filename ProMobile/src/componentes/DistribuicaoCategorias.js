@@ -8,6 +8,8 @@ import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { CATEGORIAS } from '../dados/categorias';
 
+import { ESCALA_MAXIMA_FONTE } from '../estilos/espacamentos';
+
 const TAMANHO = 120;
 
 const ESPESSURA = 16;
@@ -103,7 +105,12 @@ export default function DistribuicaoCategorias({ totais }) {
         </Svg>
 
         <View style={estilos.centro}>
-          <Text style={estilos.total}>{total}</Text>
+          <Text
+            style={estilos.total}
+            maxFontSizeMultiplier={ESCALA_MAXIMA_FONTE}
+          >
+            {total}
+          </Text>
 
           <Text style={estilos.rotuloTotal}>pontos</Text>
         </View>

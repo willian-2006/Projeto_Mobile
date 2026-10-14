@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Text } from 'react-native';
 
+import { ESCALA_MAXIMA_FONTE } from '../estilos/espacamentos';
+
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { transicao } from '../estilos/movimento';
@@ -48,7 +50,11 @@ export default function NumeroAnimado({ valor, sufixo = '', style }) {
   }, [valor, reduzirMovimento]);
 
   return (
-    <Text style={style} accessibilityLabel={`${valor}${sufixo}`}>
+    <Text
+      style={style}
+      maxFontSizeMultiplier={ESCALA_MAXIMA_FONTE}
+      accessibilityLabel={`${valor}${sufixo}`}
+    >
       {exibido}
       {sufixo}
     </Text>

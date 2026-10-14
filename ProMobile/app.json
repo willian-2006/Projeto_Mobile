@@ -1,17 +1,25 @@
 {
   "expo": {
     "name": "ProMobile",
-    "slug": "ProMobile",
+    "slug": "promobile",
+    "description": "Rotina diária gamificada: tarefas por categoria, pontos, meta diária, sequência e lembretes.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "promobile",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0A0E1A",
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.willian.promobile",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.willian.promobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0A0E1A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,7 +28,29 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font", "@react-native-community/datetimepicker"],
-    "backgroundColor": "#0A0E1A"
+    "plugins": [
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#F4F6FB",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#0A0E1A"
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#22D3EE"
+        }
+      ]
+    ]
   }
 }

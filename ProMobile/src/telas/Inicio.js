@@ -24,6 +24,8 @@ import { CATEGORIAS } from '../dados/categorias';
 
 import { ordenarCategorias } from '../utilitarios/preferencias';
 
+import { contar } from '../utilitarios/textos';
+
 export default function Inicio({ navigation }) {
   const estilos = useEstilos(criarEstilos);
 
@@ -83,7 +85,7 @@ export default function Inicio({ navigation }) {
         </Text>
 
         <Text style={estilos.contadorTarefas}>
-          {estatisticas.concluidas} concluídas
+          {contar(estatisticas.concluidas, 'concluída', 'concluídas')}
         </Text>
       </View>
     </View>

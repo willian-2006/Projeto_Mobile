@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import {
   DarkTheme,
@@ -11,6 +11,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 
 import { useFonts } from 'expo-font';
+
+import * as SplashScreen from 'expo-splash-screen';
 
 import AbasInferiores from './AbasInferiores';
 
@@ -76,12 +78,19 @@ export default function NavegacaoRaiz() {
 
   const barraStatus = <StatusBar style={tema.escuro ? 'light' : 'dark'} />;
 
-  if (
+  const carregando =
     carregandoTarefas ||
     carregandoPreferencias ||
     carregandoTema ||
-    !(fontesCarregadas || erroFontes)
-  ) {
+    !(fontesCarregadas || erroFontes);
+
+  useEffect(() => {
+    if (!carregando) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [carregando]);
+
+  if (carregando) {
     return (
       <>
         {barraStatus}

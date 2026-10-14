@@ -35,13 +35,19 @@ import {
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-import { CORES_AVATAR, TAMANHO_MAXIMO_NOME } from '../dados/preferencias';
+import {
+  CORES_AVATAR,
+  NOMES_CORES_AVATAR,
+  TAMANHO_MAXIMO_NOME,
+} from '../dados/preferencias';
 
 import { limparDados, montarExportacao } from '../servicos/armazenamento';
 
 import { vibrarExclusao, vibrarSelecao } from '../servicos/vibracao';
 
 import { sugerirMeta } from '../utilitarios/preferencias';
+
+import { contar } from '../utilitarios/textos';
 
 const opcoesTema = [
   { chave: 'sistema', titulo: 'Sistema', icone: 'phone-portrait-outline' },
@@ -180,7 +186,7 @@ export default function Perfil({ navigation }) {
                   style={[estilos.opcaoCor, ativa && estilos.opcaoCorAtiva]}
                   accessibilityRole="radio"
                   accessibilityState={{ checked: ativa }}
-                  accessibilityLabel={`Cor do avatar ${CORES_AVATAR.indexOf(cor) + 1}`}
+                  accessibilityLabel={`Avatar ${NOMES_CORES_AVATAR[cor]}`}
                 >
                   <LinearGradient
                     colors={gradienteAvatar(tema, cor)}
@@ -194,8 +200,8 @@ export default function Perfil({ navigation }) {
           </View>
 
           <Text style={estilos.resumo}>
-            {estatisticas.pontosAtuais} pontos hoje • sequência de{' '}
-            {sequencia.atual} {sequencia.atual === 1 ? 'dia' : 'dias'}
+            {contar(estatisticas.pontosAtuais, 'ponto')} hoje • sequência de{' '}
+            {contar(sequencia.atual, 'dia')}
           </Text>
         </Cartao>
 

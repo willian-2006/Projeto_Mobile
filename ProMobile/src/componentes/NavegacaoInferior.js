@@ -14,6 +14,8 @@ import Cartao from './Cartao';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
+import { ESCALA_MAXIMA_FONTE } from '../estilos/espacamentos';
+
 import { mola } from '../estilos/movimento';
 
 import { brilho } from '../estilos/sombras';
@@ -132,6 +134,7 @@ export default function NavegacaoInferior({ state, navigation, insets }) {
                   <Text
                     style={[estilos.texto, ativo && estilos.textoAtivo]}
                     numberOfLines={1}
+                    maxFontSizeMultiplier={ESCALA_MAXIMA_FONTE}
                   >
                     {item.nome}
                   </Text>

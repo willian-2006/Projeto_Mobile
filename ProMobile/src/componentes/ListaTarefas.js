@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { FlatList } from 'react-native';
 
@@ -13,6 +13,10 @@ import ItemTarefa from './ItemTarefa';
 import { useTarefas } from '../contexto/TarefasContexto';
 
 import { vibrarSelecao } from '../servicos/vibracao';
+
+// Tempo da entrada em cascata; depois disso, itens que voltam à tela
+// ao rolar (a FlatList os remonta) aparecem sem animação.
+const DURACAO_ENTRADA = 1000;
 
 // Só pode ser renderizado dentro da ReorderableList (usa o contexto dela).
 function ItemReordenavel(propriedades) {
@@ -38,6 +42,17 @@ export default function ListaTarefas({ tarefas, reordenavel, ...resto }) {
 
   const { aoAlternar, aoExcluir, aoReordenar } = useTarefas();
 
+  const [animarEntrada, setAnimarEntrada] = useState(true);
+
+  useEffect(() => {
+    const temporizador = setTimeout(
+      () => setAnimarEntrada(false),
+      DURACAO_ENTRADA
+    );
+
+    return () => clearTimeout(temporizador);
+  }, []);
+
   const aoAbrir = useCallback(
     id => navigation.navigate('EditorTarefa', { id }),
     [navigation]
@@ -54,10 +69,11 @@ export default function ListaTarefas({ tarefas, reordenavel, ...resto }) {
           aoAlternar={aoAlternar}
           aoExcluir={aoExcluir}
           aoAbrir={aoAbrir}
+          animarEntrada={animarEntrada}
         />
       );
     },
-    [reordenavel, aoAlternar, aoExcluir, aoAbrir]
+    [reordenavel, aoAlternar, aoExcluir, aoAbrir, animarEntrada]
   );
 
   const aoSoltar = useCallback(

@@ -38,7 +38,8 @@ const LIMITE_DESLIZE = 96;
 
 // Toque no círculo conclui; toque no texto abre o editor; segurar
 // (quando `aoSegurar` é passado) arrasta para reordenar; deslizar
-// para a esquerda exclui.
+// para a esquerda exclui. A entrada em cascata só roda quando a lista
+// aparece (`animarEntrada`), não ao rolar de volta até o item.
 function ItemTarefa({
   tarefa,
   indice,
@@ -46,6 +47,7 @@ function ItemTarefa({
   aoExcluir,
   aoAbrir,
   aoSegurar,
+  animarEntrada = true,
 }) {
   const { tema } = useTema();
 
@@ -107,7 +109,10 @@ function ItemTarefa({
       : null;
 
   return (
-    <Animated.View entering={entradaCascata(indice)} exiting={saida}>
+    <Animated.View
+      entering={animarEntrada ? entradaCascata(indice) : undefined}
+      exiting={saida}
+    >
       <Swipeable
         renderRightActions={renderizarAcaoExcluir}
         rightThreshold={LIMITE_DESLIZE}

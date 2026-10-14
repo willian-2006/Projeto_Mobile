@@ -120,6 +120,12 @@ describe.each(ESQUEMAS)('contraste AA no tema %s', esquema => {
     );
   });
 
+  it('texto do botão da tela de erro (fundo sobre principal)', () => {
+    expect(razaoContraste(cores.fundo, cores.principal)).toBeGreaterThanOrEqual(
+      AA_TEXTO
+    );
+  });
+
   it('ícones e letras sobre os gradientes', () => {
     const gradientes = [
       cores.gradientePrincipal,

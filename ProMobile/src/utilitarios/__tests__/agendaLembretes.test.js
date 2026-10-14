@@ -129,4 +129,19 @@ describe('montarAgenda', () => {
       expect(item.data >= agenda[indice].data).toBe(true);
     });
   });
+
+  it('usa o singular quando falta 1 ponto e 1 tarefa', () => {
+    const agenda = montarAgenda(
+      [
+        tarefa('a', { pontos: 29, concluida: true, lembrete: false }),
+        tarefa('b', { lembrete: false }),
+      ],
+      { ...preferencias, resumoDiario: true, horarioResumo: '20:00' },
+      AGORA
+    );
+
+    expect(agenda[0].corpo).toBe(
+      'Falta 1 ponto para a meta. 1 tarefa por fazer.'
+    );
+  });
 });

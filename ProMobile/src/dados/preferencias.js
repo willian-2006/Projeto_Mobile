@@ -8,6 +8,15 @@ export const CORES_AVATAR = [
   'devocional',
 ];
 
+// Nomes lidos pelo leitor de tela.
+export const NOMES_CORES_AVATAR = {
+  principal: 'ciano e violeta',
+  saude: 'verde',
+  estudos: 'azul',
+  trabalho: 'laranja',
+  devocional: 'rosa',
+};
+
 export const META_MINIMA = 10;
 
 export const META_MAXIMA = 500;

@@ -8,6 +8,8 @@ import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { META_MAXIMA, META_MINIMA, PASSO_META } from '../dados/preferencias';
 
+import { ESCALA_MAXIMA_FONTE } from '../estilos/espacamentos';
+
 import { vibrarSelecao } from '../servicos/vibracao';
 
 import { limitarMeta } from '../utilitarios/preferencias';
@@ -48,7 +50,12 @@ export default function SeletorMeta({ valor, aoMudar }) {
       {botao('remove', -PASSO_META, 'Diminuir meta', valor <= META_MINIMA)}
 
       <View style={estilos.valor}>
-        <Text style={estilos.numero}>{valor}</Text>
+        <Text
+          style={estilos.numero}
+          maxFontSizeMultiplier={ESCALA_MAXIMA_FONTE}
+        >
+          {valor}
+        </Text>
 
         <Text style={estilos.unidade}>pontos por dia</Text>
       </View>

@@ -16,3 +16,7 @@ export const raio = {
 
 // Área mínima de toque recomendada (acessibilidade).
 export const AREA_TOQUE = 44;
+
+// Limite do aumento de fonte do sistema onde o espaço é fixo
+// (abas, números grandes dentro de anéis e cartões).
+export const ESCALA_MAXIMA_FONTE = 1.3;
