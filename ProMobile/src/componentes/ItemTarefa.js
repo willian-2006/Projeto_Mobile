@@ -14,64 +14,70 @@ import { cores } from '../estilos/cores';
 export default function ItemTarefa({
   tarefa,
   aoAlternar,
+  aoExcluir,
 }) {
-
   return (
-    <TouchableOpacity
-      style={estilos.container}
-      onPress={() => aoAlternar(tarefa.id)}
-      activeOpacity={0.7}
-    >
-
-      <View
-        style={[
-          estilos.checkbox,
-          tarefa.concluida &&
-            estilos.checkboxConcluido,
-        ]}
+    <View style={estilos.container}>
+      <TouchableOpacity
+        style={estilos.areaTarefa}
+        onPress={() => aoAlternar(tarefa.id)}
+        activeOpacity={0.7}
       >
-
-        {tarefa.concluida && (
-          <Ionicons
-            name="checkmark"
-            size={16}
-            color={cores.branco}
-          />
-        )}
-
-      </View>
-
-      <View style={estilos.conteudo}>
-
-        <Text
+        <View
           style={[
-            estilos.titulo,
+            estilos.checkbox,
             tarefa.concluida &&
-              estilos.tituloConcluido,
+              estilos.checkboxConcluido,
           ]}
         >
-          {tarefa.titulo}
-        </Text>
-
-        <View style={estilos.informacoes}>
-
-          <Text style={estilos.categoria}>
-            {tarefa.categoria}
-          </Text>
-
-          <Text style={estilos.separador}>
-            •
-          </Text>
-
-          <Text style={estilos.pontos}>
-            +{tarefa.pontos} pontos
-          </Text>
-
+          {tarefa.concluida && (
+            <Ionicons
+              name="checkmark"
+              size={16}
+              color={cores.branco}
+            />
+          )}
         </View>
 
-      </View>
+        <View style={estilos.conteudo}>
+          <Text
+            style={[
+              estilos.titulo,
+              tarefa.concluida &&
+                estilos.tituloConcluido,
+            ]}
+          >
+            {tarefa.titulo}
+          </Text>
 
-    </TouchableOpacity>
+          <View style={estilos.informacoes}>
+            <Text style={estilos.categoria}>
+              {tarefa.categoria}
+            </Text>
+
+            <Text style={estilos.separador}>
+              •
+            </Text>
+
+            <Text style={estilos.pontos}>
+              +{tarefa.pontos} pontos
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={estilos.botaoExcluir}
+        onPress={() => aoExcluir(tarefa.id)}
+        activeOpacity={0.7}
+      >
+        <Ionicons
+          name="trash-outline"
+          size={20}
+          color={cores.textoSecundario}
+        />
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -83,6 +89,12 @@ const estilos = StyleSheet.create({
     borderRadius: 16,
     padding: 15,
     marginBottom: 10,
+  },
+
+  areaTarefa: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   checkbox: {
@@ -136,5 +148,13 @@ const estilos = StyleSheet.create({
     fontSize: 12,
     color: cores.principal,
     fontWeight: '600',
+  },
+
+  botaoExcluir: {
+    width: 38,
+    height: 38,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
 });

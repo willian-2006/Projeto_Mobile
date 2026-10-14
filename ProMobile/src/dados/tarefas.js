@@ -38,4 +38,12 @@ export const tarefasIniciais = [
     pontos: 10,
     concluida: false,
   },
+
+  {
+    id: 6,
+    titulo: 'Organizar tarefas do dia',
+    categoria: 'Trabalho',
+    pontos: 10,
+    concluida: false,
+  },
 ];

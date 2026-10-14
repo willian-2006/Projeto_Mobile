@@ -3,6 +3,7 @@ import React from 'react';
 import {
   View,
   Text,
+  TouchableOpacity,
   StyleSheet,
 } from 'react-native';
 
@@ -17,11 +18,14 @@ export default function CartaoCategoria({
   pontos,
   corFundo,
   corIcone,
+  aoPressionar,
 }) {
-
   return (
-    <View style={estilos.cartao}>
-
+    <TouchableOpacity
+      style={estilos.cartao}
+      onPress={aoPressionar}
+      activeOpacity={0.7}
+    >
       <View
         style={[
           estilos.icone,
@@ -49,8 +53,7 @@ export default function CartaoCategoria({
       <Text style={estilos.pontos}>
         {pontos} pontos
       </Text>
-
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -61,7 +64,6 @@ const estilos = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     marginBottom: 12,
-
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -69,7 +71,6 @@ const estilos = StyleSheet.create({
     },
     shadowOpacity: 0.04,
     shadowRadius: 8,
-
     elevation: 2,
   },
 
