@@ -4,141 +4,148 @@ import { View, Text, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-import { cores } from '../estilos/cores';
+import AnelProgresso from './AnelProgresso';
+
+import Cartao from './Cartao';
+
+import NumeroAnimado from './NumeroAnimado';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
+
+import { brilho } from '../estilos/sombras';
 
 import { calcularPorcentagem } from '../utilitarios/pontuacao';
 
 export default function CartaoProgresso({ pontosAtuais, pontosMaximos }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const porcentagem = calcularPorcentagem(pontosAtuais, pontosMaximos);
 
   const pontosRestantes = Math.max(pontosMaximos - pontosAtuais, 0);
 
+  const metaBatida = pontosMaximos > 0 && porcentagem === 100;
+
   return (
-    <View style={estilos.cartao}>
-      <View style={estilos.topo}>
-        <View>
+    <View style={estilos.sombra}>
+      <Cartao style={estilos.cartao}>
+        <View style={estilos.textos}>
           <Text style={estilos.titulo}>Sua meta de hoje</Text>
 
           <View style={estilos.linhaPontos}>
-            <Text style={estilos.pontosAtuais}>{pontosAtuais}</Text>
+            <NumeroAnimado valor={pontosAtuais} style={estilos.pontosAtuais} />
 
             <Text style={estilos.pontosMaximos}>
               {' / '}
-              {pontosMaximos} pontos
+              {pontosMaximos} pts
             </Text>
           </View>
+
+          {metaBatida ? (
+            <View style={estilos.linhaStatus}>
+              <Ionicons
+                name="checkmark-circle"
+                size={16}
+                color={tema.cores.sucesso}
+              />
+
+              <Text style={estilos.metaBatida}>Meta batida!</Text>
+            </View>
+          ) : (
+            <Text style={estilos.restantes}>
+              {pontosRestantes} pontos restantes
+            </Text>
+          )}
         </View>
 
-        <View style={estilos.icone}>
-          <Ionicons name="trophy-outline" size={24} color={cores.principal} />
-        </View>
-      </View>
+        <AnelProgresso porcentagem={porcentagem}>
+          <NumeroAnimado
+            valor={porcentagem}
+            sufixo="%"
+            style={estilos.porcentagem}
+          />
 
-      <View style={estilos.fundoBarra}>
-        <View
-          style={[
-            estilos.barra,
-            {
-              width: `${porcentagem}%`,
-            },
-          ]}
-        />
-      </View>
-
-      <View style={estilos.rodape}>
-        <Text style={estilos.porcentagem}>{porcentagem}% concluído</Text>
-
-        <Text style={estilos.restantes}>
-          {pontosRestantes} pontos restantes
-        </Text>
-      </View>
+          <Text style={estilos.rotuloAnel}>concluído</Text>
+        </AnelProgresso>
+      </Cartao>
     </View>
   );
 }
 
-const estilos = StyleSheet.create({
-  cartao: {
-    backgroundColor: cores.branco,
-    borderRadius: 22,
-    padding: 20,
-    marginBottom: 28,
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
+const criarEstilos = tema =>
+  StyleSheet.create({
+    sombra: {
+      borderRadius: tema.raio.lg,
+      marginBottom: tema.espaco.xxl - 4,
+      ...brilho(
+        tema.cores.principal,
+        tema.escuro ? 0.6 : 0.4,
+        tema.cores.superficie
+      ),
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
 
-    elevation: 3,
-  },
+    cartao: {
+      borderRadius: tema.raio.lg,
+      padding: tema.espaco.xl - 4,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
 
-  topo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+    textos: {
+      flex: 1,
+      marginRight: tema.espaco.lg,
+    },
 
-  titulo: {
-    fontSize: 14,
-    color: cores.textoSecundario,
-    marginBottom: 5,
-  },
+    titulo: {
+      ...tema.tipografia.corpo,
+      color: tema.cores.textoSecundario,
+      marginBottom: tema.espaco.xs,
+    },
 
-  linhaPontos: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
+    linhaPontos: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+    },
 
-  pontosAtuais: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: cores.texto,
-  },
+    pontosAtuais: {
+      ...tema.tipografia.numeros,
+      fontSize: 36,
+      color: tema.cores.texto,
+    },
 
-  pontosMaximos: {
-    fontSize: 15,
-    color: cores.textoSecundario,
-  },
+    pontosMaximos: {
+      ...tema.tipografia.numeros,
+      fontSize: 15,
+      color: tema.cores.textoSecundario,
+    },
 
-  icone: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: cores.principalClara,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    restantes: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginTop: tema.espaco.sm,
+    },
 
-  fundoBarra: {
-    height: 10,
-    backgroundColor: cores.borda,
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginTop: 20,
-  },
+    linhaStatus: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: tema.espaco.sm,
+    },
 
-  barra: {
-    height: '100%',
-    backgroundColor: cores.principal,
-    borderRadius: 10,
-  },
+    metaBatida: {
+      ...tema.tipografia.legendaDestaque,
+      color: tema.cores.sucesso,
+      marginLeft: tema.espaco.xs,
+    },
 
-  rodape: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
+    porcentagem: {
+      ...tema.tipografia.numeros,
+      fontSize: 24,
+      color: tema.cores.texto,
+    },
 
-  porcentagem: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: cores.principal,
-  },
-
-  restantes: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-  },
-});
+    rotuloAnel: {
+      ...tema.tipografia.rotulo,
+      color: tema.cores.textoSecundario,
+    },
+  });

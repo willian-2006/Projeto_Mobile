@@ -2,27 +2,39 @@ import React from 'react';
 
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
 
-import { Ionicons } from '@expo/vector-icons';
+import BarraProgresso from '../componentes/BarraProgresso';
 
 import CabecalhoTela from '../componentes/CabecalhoTela';
 
+import Cartao from '../componentes/Cartao';
+
 import CartaoProgresso from '../componentes/CartaoProgresso';
+
+import IconeGradiente from '../componentes/IconeGradiente';
+
+import Tela from '../componentes/Tela';
 
 import { useEstatisticas } from '../contexto/TarefasContexto';
 
+import { useEstilos, useTema } from '../contexto/TemaContexto';
+
 import { CATEGORIAS } from '../dados/categorias';
 
-import { cores } from '../estilos/cores';
+import { entradaCascata } from '../estilos/movimento';
 
 import { calcularPorcentagem } from '../utilitarios/pontuacao';
 
 export default function Metas() {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const estatisticas = useEstatisticas();
 
   return (
-    <SafeAreaView style={estilos.areaSegura} edges={['top']}>
+    <Tela edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
@@ -34,8 +46,10 @@ export default function Metas() {
           pontosMaximos={estatisticas.pontosMaximos}
         />
 
-        {CATEGORIAS.map(categoria => {
+        {CATEGORIAS.map((categoria, indice) => {
           const resumo = estatisticas.porCategoria[categoria.chave];
+
+          const coresCategoria = tema.categorias[categoria.chave];
 
           const porcentagem = calcularPorcentagem(
             resumo.pontosConcluidos,
@@ -43,119 +57,91 @@ export default function Metas() {
           );
 
           return (
-            <View key={categoria.chave} style={estilos.cartao}>
-              <View style={estilos.topo}>
-                <View
-                  style={[
-                    estilos.icone,
-                    { backgroundColor: categoria.corFundo },
-                  ]}
-                >
-                  <Ionicons
-                    name={categoria.icone}
-                    size={20}
-                    color={categoria.cor}
+            <Animated.View
+              key={categoria.chave}
+              entering={entradaCascata(indice)}
+            >
+              <Cartao style={estilos.cartao}>
+                <View style={estilos.topo}>
+                  <IconeGradiente
+                    icone={categoria.icone}
+                    gradiente={coresCategoria.gradiente}
                   />
-                </View>
 
-                <View style={estilos.textos}>
-                  <Text style={estilos.titulo}>{categoria.titulo}</Text>
+                  <View style={estilos.textos}>
+                    <Text style={estilos.titulo}>{categoria.titulo}</Text>
 
-                  <Text style={estilos.detalhe}>
-                    {resumo.concluidas} de {resumo.tarefas} concluídas •{' '}
-                    {resumo.pontosConcluidos}/{resumo.pontos} pontos
+                    <Text style={estilos.detalhe}>
+                      {resumo.concluidas} de {resumo.tarefas} concluídas •{' '}
+                      {resumo.pontosConcluidos}/{resumo.pontos} pts
+                    </Text>
+                  </View>
+
+                  <Text
+                    style={[estilos.porcentagem, { color: coresCategoria.cor }]}
+                  >
+                    {porcentagem}%
                   </Text>
                 </View>
 
-                <Text style={[estilos.porcentagem, { color: categoria.cor }]}>
-                  {porcentagem}%
-                </Text>
-              </View>
-
-              <View style={estilos.fundoBarra}>
-                <View
-                  style={[
-                    estilos.barra,
-                    {
-                      width: `${porcentagem}%`,
-                      backgroundColor: categoria.cor,
-                    },
-                  ]}
-                />
-              </View>
-            </View>
+                <View style={estilos.barra}>
+                  <BarraProgresso
+                    porcentagem={porcentagem}
+                    gradiente={coresCategoria.gradiente}
+                  />
+                </View>
+              </Cartao>
+            </Animated.View>
           );
         })}
       </ScrollView>
-    </SafeAreaView>
+    </Tela>
   );
 }
 
-const estilos = StyleSheet.create({
-  areaSegura: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    conteudoRolagem: {
+      paddingHorizontal: tema.espaco.xl - 4,
+      paddingTop: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.xl - 4,
+    },
 
-  conteudoRolagem: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+    cartao: {
+      padding: tema.espaco.lg,
+      marginBottom: tema.espaco.md,
+    },
 
-  cartao: {
-    backgroundColor: cores.branco,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
-  },
+    topo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
 
-  topo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+    textos: {
+      flex: 1,
+      marginLeft: tema.espaco.md,
+    },
 
-  icone: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
+    titulo: {
+      ...tema.tipografia.tituloCartao,
+      color: tema.cores.texto,
+    },
 
-  textos: {
-    flex: 1,
-  },
+    detalhe: {
+      ...tema.tipografia.legenda,
+      ...tema.tipografia.numeros,
+      fontFamily: tema.fontes.corpo,
+      color: tema.cores.textoSecundario,
+      marginTop: 2,
+    },
 
-  titulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: cores.texto,
-  },
+    porcentagem: {
+      ...tema.tipografia.numeros,
+      fontSize: 18,
+      marginLeft: tema.espaco.sm,
+    },
 
-  detalhe: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-    marginTop: 3,
-  },
-
-  porcentagem: {
-    fontSize: 16,
-    fontWeight: '800',
-    marginLeft: 8,
-  },
-
-  fundoBarra: {
-    height: 8,
-    backgroundColor: cores.borda,
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginTop: 14,
-  },
-
-  barra: {
-    height: '100%',
-    borderRadius: 8,
-  },
-});
+    barra: {
+      marginTop: tema.espaco.md + 2,
+    },
+  });

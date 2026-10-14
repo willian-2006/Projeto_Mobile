@@ -1,41 +1,67 @@
 import React from 'react';
 
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import CabecalhoTela from '../componentes/CabecalhoTela';
 
+import Cartao from '../componentes/Cartao';
+
+import Tela from '../componentes/Tela';
+
 import { useEstatisticas } from '../contexto/TarefasContexto';
 
-import { cores } from '../estilos/cores';
+import { useEstilos, useTema } from '../contexto/TemaContexto';
+
+import { vibrarSelecao } from '../servicos/vibracao';
+
+const opcoesTema = [
+  { chave: 'sistema', titulo: 'Sistema', icone: 'phone-portrait-outline' },
+  { chave: 'escuro', titulo: 'Escuro', icone: 'moon-outline' },
+  { chave: 'claro', titulo: 'Claro', icone: 'sunny-outline' },
+];
 
 // Nome e avatar ainda fixos: perfil e configurações chegam na Fase 4.
 const recursosFuturos = [
   { icone: 'person-circle-outline', texto: 'Nome e avatar' },
-  { icone: 'color-palette-outline', texto: 'Tema claro e escuro' },
   { icone: 'flag-outline', texto: 'Meta diária' },
   { icone: 'notifications-outline', texto: 'Lembretes' },
   { icone: 'download-outline', texto: 'Exportar e limpar dados' },
 ];
 
 export default function Perfil() {
+  const { tema, preferencia, aoMudarPreferencia } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const estatisticas = useEstatisticas();
 
   return (
-    <SafeAreaView style={estilos.areaSegura} edges={['top']}>
+    <Tela edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       >
         <CabecalhoTela titulo="Perfil" />
 
-        <View style={estilos.cartaoPerfil}>
-          <View style={estilos.avatar}>
+        <Cartao style={estilos.cartaoPerfil}>
+          <LinearGradient
+            colors={tema.cores.gradientePrincipal}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={estilos.avatar}
+          >
             <Text style={estilos.letraAvatar}>W</Text>
-          </View>
+          </LinearGradient>
 
           <Text style={estilos.nome}>Willian</Text>
 
@@ -45,100 +71,173 @@ export default function Perfil() {
               ? 'tarefa concluída'
               : 'tarefas concluídas'}
           </Text>
-        </View>
+        </Cartao>
 
-        <Text style={estilos.tituloSecao}>Em breve</Text>
+        <Text style={estilos.tituloSecao} accessibilityRole="header">
+          Aparência
+        </Text>
 
-        <View style={estilos.cartao}>
-          {recursosFuturos.map(recurso => (
-            <View key={recurso.texto} style={estilos.linha}>
+        <Cartao style={estilos.seletor} accessibilityRole="radiogroup">
+          {opcoesTema.map(opcao => {
+            const ativo = preferencia === opcao.chave;
+
+            return (
+              <TouchableOpacity
+                key={opcao.chave}
+                style={[estilos.opcao, ativo && estilos.opcaoAtiva]}
+                onPress={() => {
+                  vibrarSelecao();
+                  aoMudarPreferencia(opcao.chave);
+                }}
+                activeOpacity={0.7}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: ativo }}
+                accessibilityLabel={`Tema ${opcao.titulo}`}
+              >
+                <Ionicons
+                  name={opcao.icone}
+                  size={18}
+                  color={
+                    ativo ? tema.cores.principal : tema.cores.textoSecundario
+                  }
+                />
+
+                <Text
+                  style={[estilos.textoOpcao, ativo && estilos.textoOpcaoAtiva]}
+                >
+                  {opcao.titulo}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </Cartao>
+
+        <Text style={estilos.tituloSecao} accessibilityRole="header">
+          Em breve
+        </Text>
+
+        <Cartao style={estilos.lista}>
+          {recursosFuturos.map((recurso, indice) => (
+            <View
+              key={recurso.texto}
+              style={[
+                estilos.linha,
+                indice === recursosFuturos.length - 1 && estilos.ultimaLinha,
+              ]}
+            >
               <Ionicons
                 name={recurso.icone}
                 size={20}
-                color={cores.textoSecundario}
+                color={tema.cores.textoTerciario}
               />
 
               <Text style={estilos.textoLinha}>{recurso.texto}</Text>
             </View>
           ))}
-        </View>
+        </Cartao>
       </ScrollView>
-    </SafeAreaView>
+    </Tela>
   );
 }
 
-const estilos = StyleSheet.create({
-  areaSegura: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    conteudoRolagem: {
+      paddingHorizontal: tema.espaco.xl - 4,
+      paddingTop: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.xl - 4,
+    },
 
-  conteudoRolagem: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+    cartaoPerfil: {
+      padding: tema.espaco.xl,
+      alignItems: 'center',
+      marginBottom: tema.espaco.xxl - 4,
+    },
 
-  cartaoPerfil: {
-    backgroundColor: cores.branco,
-    borderRadius: 22,
-    padding: 24,
-    alignItems: 'center',
-    marginBottom: 28,
-  },
+    avatar: {
+      width: 76,
+      height: 76,
+      borderRadius: 38,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: cores.principal,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    letraAvatar: {
+      fontFamily: tema.fontes.titulo,
+      fontSize: 30,
+      color: tema.cores.textoSobreDestaque,
+    },
 
-  letraAvatar: {
-    color: cores.branco,
-    fontSize: 28,
-    fontWeight: '700',
-  },
+    nome: {
+      ...tema.tipografia.tituloSecao,
+      fontSize: 22,
+      color: tema.cores.texto,
+      marginTop: tema.espaco.md,
+    },
 
-  nome: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: cores.texto,
-    marginTop: 12,
-  },
+    resumo: {
+      ...tema.tipografia.legenda,
+      fontSize: 13,
+      color: tema.cores.textoSecundario,
+      marginTop: tema.espaco.xs,
+    },
 
-  resumo: {
-    fontSize: 13,
-    color: cores.textoSecundario,
-    marginTop: 4,
-  },
+    tituloSecao: {
+      ...tema.tipografia.tituloSecao,
+      color: tema.cores.texto,
+      marginBottom: tema.espaco.md,
+    },
 
-  tituloSecao: {
-    fontSize: 19,
-    fontWeight: '700',
-    color: cores.texto,
-    marginBottom: 15,
-  },
+    seletor: {
+      flexDirection: 'row',
+      padding: tema.espaco.xs,
+      marginBottom: tema.espaco.xxl - 4,
+    },
 
-  cartao: {
-    backgroundColor: cores.branco,
-    borderRadius: 18,
-    paddingHorizontal: 16,
-  },
+    opcao: {
+      flex: 1,
+      minHeight: tema.areaToque,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: tema.raio.md,
+    },
 
-  linha: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 52,
-    borderBottomWidth: 1,
-    borderBottomColor: cores.borda,
-  },
+    opcaoAtiva: {
+      backgroundColor: tema.cores.principalSuave,
+    },
 
-  textoLinha: {
-    fontSize: 14,
-    color: cores.textoSecundario,
-    marginLeft: 12,
-  },
-});
+    textoOpcao: {
+      ...tema.tipografia.legendaDestaque,
+      fontSize: 13,
+      color: tema.cores.textoSecundario,
+      marginLeft: 6,
+    },
+
+    textoOpcaoAtiva: {
+      fontFamily: tema.fontes.corpoNegrito,
+      color: tema.cores.principal,
+    },
+
+    lista: {
+      paddingHorizontal: tema.espaco.lg,
+    },
+
+    linha: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      minHeight: 52,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: tema.cores.borda,
+    },
+
+    ultimaLinha: {
+      borderBottomWidth: 0,
+    },
+
+    textoLinha: {
+      ...tema.tipografia.corpo,
+      color: tema.cores.textoSecundario,
+      marginLeft: tema.espaco.md,
+    },
+  });

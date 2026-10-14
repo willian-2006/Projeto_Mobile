@@ -1,10 +1,16 @@
 import React, { memo } from 'react';
 
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import Animated from 'react-native-reanimated';
 
-import { cores } from '../estilos/cores';
+import Cartao from './Cartao';
+
+import IconeGradiente from './IconeGradiente';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
+
+import { entradaCascata } from '../estilos/movimento';
 
 function CartaoCategoria({
   chave,
@@ -12,82 +18,72 @@ function CartaoCategoria({
   icone,
   tarefas,
   pontos,
-  corFundo,
-  corIcone,
+  indice,
   aoPressionar,
 }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
+  const coresCategoria = tema.categorias[chave];
+
   return (
-    <TouchableOpacity
-      style={estilos.cartao}
-      onPress={() => aoPressionar(chave)}
-      activeOpacity={0.7}
-    >
-      <View
-        style={[
-          estilos.icone,
-          {
-            backgroundColor: corFundo,
-          },
-        ]}
+    <Animated.View style={estilos.envoltorio} entering={entradaCascata(indice)}>
+      <TouchableOpacity
+        onPress={() => aoPressionar(chave)}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={`${titulo}: ${tarefas} ${
+          tarefas === 1 ? 'tarefa' : 'tarefas'
+        }, ${pontos} pontos`}
       >
-        <Ionicons name={icone} size={21} color={corIcone} />
-      </View>
+        <Cartao style={estilos.cartao}>
+          <IconeGradiente icone={icone} gradiente={coresCategoria.gradiente} />
 
-      <Text style={estilos.titulo}>{titulo}</Text>
+          <Text style={estilos.titulo}>{titulo}</Text>
 
-      <Text style={estilos.tarefas}>
-        {tarefas} {tarefas === 1 ? 'tarefa' : 'tarefas'}
-      </Text>
+          <Text style={estilos.tarefas}>
+            {tarefas} {tarefas === 1 ? 'tarefa' : 'tarefas'}
+          </Text>
 
-      <Text style={estilos.pontos}>{pontos} pontos</Text>
-    </TouchableOpacity>
+          <Text style={[estilos.pontos, { color: coresCategoria.cor }]}>
+            {pontos} pontos
+          </Text>
+        </Cartao>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
 export default memo(CartaoCategoria);
 
-const estilos = StyleSheet.create({
-  cartao: {
-    width: '48%',
-    backgroundColor: cores.branco,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+const criarEstilos = tema =>
+  StyleSheet.create({
+    envoltorio: {
+      width: '48%',
+      marginBottom: tema.espaco.md,
     },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
 
-  icone: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
+    cartao: {
+      padding: tema.espaco.lg,
+    },
 
-  titulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: cores.texto,
-  },
+    titulo: {
+      ...tema.tipografia.tituloCartao,
+      color: tema.cores.texto,
+      marginTop: tema.espaco.md,
+    },
 
-  tarefas: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-    marginTop: 5,
-  },
+    tarefas: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginTop: tema.espaco.xs,
+    },
 
-  pontos: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: cores.principal,
-    marginTop: 3,
-  },
-});
+    pontos: {
+      ...tema.tipografia.legendaDestaque,
+      ...tema.tipografia.numeros,
+      fontSize: 13,
+      marginTop: 2,
+    },
+  });

@@ -9,28 +9,31 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import CabecalhoTela from '../componentes/CabecalhoTela';
 
 import EstadoVazio from '../componentes/EstadoVazio';
 
 import ItemTarefa from '../componentes/ItemTarefa';
 
+import Tela from '../componentes/Tela';
+
 import { useTarefas } from '../contexto/TarefasContexto';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { CATEGORIAS } from '../dados/categorias';
 
-import { cores } from '../estilos/cores';
+import { vibrarSelecao } from '../servicos/vibracao';
 
 const TODAS = 'todas';
 
-const filtros = [
-  { chave: TODAS, titulo: 'Todas', cor: cores.principal },
-  ...CATEGORIAS,
-];
+const filtros = [{ chave: TODAS, titulo: 'Todas' }, ...CATEGORIAS];
 
 export default function Tarefas() {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const { tarefas, aoAlternar, aoExcluir } = useTarefas();
 
   const [filtro, setFiltro] = useState(TODAS);
@@ -44,11 +47,22 @@ export default function Tarefas() {
   );
 
   const renderizarTarefa = useCallback(
-    ({ item }) => (
-      <ItemTarefa tarefa={item} aoAlternar={aoAlternar} aoExcluir={aoExcluir} />
+    ({ item, index }) => (
+      <ItemTarefa
+        tarefa={item}
+        indice={index}
+        aoAlternar={aoAlternar}
+        aoExcluir={aoExcluir}
+      />
     ),
     [aoAlternar, aoExcluir]
   );
+
+  function corDoFiltro(chave) {
+    return chave === TODAS
+      ? { cor: tema.cores.principal, corSuave: tema.cores.principalSuave }
+      : tema.categorias[chave];
+  }
 
   const cabecalhoLista = (
     <View>
@@ -67,19 +81,33 @@ export default function Tarefas() {
         {filtros.map(item => {
           const ativo = filtro === item.chave;
 
+          const cores = corDoFiltro(item.chave);
+
           return (
             <TouchableOpacity
               key={item.chave}
               style={[
                 estilos.pilula,
-                ativo && { backgroundColor: item.cor, borderColor: item.cor },
+                ativo && {
+                  backgroundColor: cores.corSuave,
+                  borderColor: cores.cor,
+                },
               ]}
-              onPress={() => setFiltro(item.chave)}
+              onPress={() => {
+                vibrarSelecao();
+                setFiltro(item.chave);
+              }}
               activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityState={{ selected: ativo }}
+              accessibilityLabel={`Filtrar: ${item.titulo}`}
             >
-              <Text style={[estilos.textoPilula, ativo && estilos.textoAtivo]}>
+              <Text
+                style={[
+                  estilos.textoPilula,
+                  ativo && [estilos.textoAtivo, { color: cores.cor }],
+                ]}
+              >
                 {item.titulo}
               </Text>
             </TouchableOpacity>
@@ -90,7 +118,7 @@ export default function Tarefas() {
   );
 
   return (
-    <SafeAreaView style={estilos.areaSegura} edges={['top']}>
+    <Tela edges={['top']}>
       <FlatList
         data={tarefasFiltradas}
         keyExtractor={tarefa => tarefa.id}
@@ -98,53 +126,48 @@ export default function Tarefas() {
         ListHeaderComponent={cabecalhoLista}
         ListEmptyComponent={
           <EstadoVazio
-            icone="list-outline"
-            cor={cores.principal}
-            titulo="Nenhuma tarefa encontrada"
-            subtitulo="Escolha outra categoria ou adicione uma tarefa"
+            icone="search-outline"
+            titulo="Nada por aqui ainda"
+            subtitulo="Escolha outro filtro ou crie uma tarefa nesta categoria"
           />
         }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       />
-    </SafeAreaView>
+    </Tela>
   );
 }
 
-const estilos = StyleSheet.create({
-  areaSegura: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    conteudoRolagem: {
+      paddingHorizontal: tema.espaco.xl - 4,
+      paddingTop: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.xl - 4,
+    },
 
-  conteudoRolagem: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+    filtros: {
+      paddingBottom: tema.espaco.xl - 4,
+    },
 
-  filtros: {
-    paddingBottom: 20,
-  },
+    pilula: {
+      minHeight: tema.areaToque,
+      paddingHorizontal: tema.espaco.lg,
+      borderRadius: tema.raio.pilula,
+      borderWidth: 1,
+      borderColor: tema.cores.borda,
+      backgroundColor: tema.cores.superficieVidro,
+      justifyContent: 'center',
+      marginRight: tema.espaco.sm,
+    },
 
-  pilula: {
-    minHeight: 44,
-    paddingHorizontal: 16,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    backgroundColor: cores.branco,
-    justifyContent: 'center',
-    marginRight: 8,
-  },
+    textoPilula: {
+      ...tema.tipografia.legendaDestaque,
+      fontSize: 13,
+      color: tema.cores.textoSecundario,
+    },
 
-  textoPilula: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: cores.textoSecundario,
-  },
-
-  textoAtivo: {
-    color: cores.branco,
-  },
-});
+    textoAtivo: {
+      fontFamily: tema.fontes.corpoNegrito,
+    },
+  });

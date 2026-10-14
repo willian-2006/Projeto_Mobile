@@ -2,8 +2,6 @@ import React, { useCallback } from 'react';
 
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import Cabecalho from '../componentes/Cabecalho';
 
 import CartaoProgresso from '../componentes/CartaoProgresso';
@@ -14,13 +12,17 @@ import EstadoVazio from '../componentes/EstadoVazio';
 
 import ItemTarefa from '../componentes/ItemTarefa';
 
+import Tela from '../componentes/Tela';
+
 import { useEstatisticas, useTarefas } from '../contexto/TarefasContexto';
+
+import { useEstilos } from '../contexto/TemaContexto';
 
 import { CATEGORIAS } from '../dados/categorias';
 
-import { cores } from '../estilos/cores';
-
 export default function Inicio({ navigation }) {
+  const estilos = useEstilos(criarEstilos);
+
   const { tarefas, aoAlternar, aoExcluir } = useTarefas();
 
   const estatisticas = useEstatisticas();
@@ -31,8 +33,13 @@ export default function Inicio({ navigation }) {
   );
 
   const renderizarTarefa = useCallback(
-    ({ item }) => (
-      <ItemTarefa tarefa={item} aoAlternar={aoAlternar} aoExcluir={aoExcluir} />
+    ({ item, index }) => (
+      <ItemTarefa
+        tarefa={item}
+        indice={index}
+        aoAlternar={aoAlternar}
+        aoExcluir={aoExcluir}
+      />
     ),
     [aoAlternar, aoExcluir]
   );
@@ -47,7 +54,9 @@ export default function Inicio({ navigation }) {
       />
 
       <View style={estilos.cabecalhoSecao}>
-        <Text style={estilos.tituloSecao}>Sua rotina de hoje</Text>
+        <Text style={estilos.tituloSecao} accessibilityRole="header">
+          Sua rotina de hoje
+        </Text>
 
         <Text style={estilos.contador}>
           {estatisticas.concluidas}/{estatisticas.total}
@@ -55,7 +64,7 @@ export default function Inicio({ navigation }) {
       </View>
 
       <View style={estilos.categorias}>
-        {CATEGORIAS.map(categoria => (
+        {CATEGORIAS.map((categoria, indice) => (
           <CartaoCategoria
             key={categoria.chave}
             chave={categoria.chave}
@@ -63,15 +72,16 @@ export default function Inicio({ navigation }) {
             icone={categoria.icone}
             tarefas={estatisticas.porCategoria[categoria.chave].tarefas}
             pontos={estatisticas.porCategoria[categoria.chave].pontos}
-            corFundo={categoria.corFundo}
-            corIcone={categoria.cor}
+            indice={indice}
             aoPressionar={abrirCategoria}
           />
         ))}
       </View>
 
-      <View style={estilos.cabecalhoTarefas}>
-        <Text style={estilos.tituloSecao}>Tarefas de hoje</Text>
+      <View style={estilos.cabecalhoSecao}>
+        <Text style={estilos.tituloSecao} accessibilityRole="header">
+          Tarefas de hoje
+        </Text>
 
         <Text style={estilos.contadorTarefas}>
           {estatisticas.concluidas} concluídas
@@ -81,7 +91,7 @@ export default function Inicio({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={estilos.areaSegura} edges={['top']}>
+    <Tela edges={['top']}>
       <FlatList
         data={tarefas}
         keyExtractor={tarefa => tarefa.id}
@@ -89,66 +99,54 @@ export default function Inicio({ navigation }) {
         ListHeaderComponent={cabecalhoLista}
         ListEmptyComponent={
           <EstadoVazio
-            icone="checkmark-done-outline"
-            cor={cores.principal}
-            titulo="Nenhuma tarefa por aqui"
-            subtitulo="Toque em uma categoria para adicionar"
+            icone="sparkles-outline"
+            titulo="Dia livre por aqui"
+            subtitulo="Toque em uma categoria e crie sua primeira tarefa"
           />
         }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       />
-    </SafeAreaView>
+    </Tela>
   );
 }
 
-const estilos = StyleSheet.create({
-  areaSegura: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    conteudoRolagem: {
+      paddingHorizontal: tema.espaco.xl - 4,
+      paddingTop: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.xl - 4,
+    },
 
-  conteudoRolagem: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+    cabecalhoSecao: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: tema.espaco.lg,
+    },
 
-  cabecalhoSecao: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
+    tituloSecao: {
+      ...tema.tipografia.tituloSecao,
+      color: tema.cores.texto,
+    },
 
-  tituloSecao: {
-    fontSize: 19,
-    fontWeight: '700',
-    color: cores.texto,
-  },
+    contador: {
+      ...tema.tipografia.legendaDestaque,
+      ...tema.tipografia.numeros,
+      fontSize: 13,
+      color: tema.cores.principal,
+    },
 
-  contador: {
-    fontSize: 13,
-    color: cores.principal,
-    fontWeight: '600',
-  },
+    categorias: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginBottom: tema.espaco.md,
+    },
 
-  categorias: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 22,
-  },
-
-  cabecalhoTarefas: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-
-  contadorTarefas: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-  },
-});
+    contadorTarefas: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+    },
+  });

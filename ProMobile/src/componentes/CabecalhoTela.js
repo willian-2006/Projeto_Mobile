@@ -4,9 +4,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
-import { cores } from '../estilos/cores';
+import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 export default function CabecalhoTela({ titulo, subtitulo, aoVoltar }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   return (
     <View style={estilos.cabecalho}>
       {aoVoltar && (
@@ -16,12 +20,14 @@ export default function CabecalhoTela({ titulo, subtitulo, aoVoltar }) {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
         >
-          <Ionicons name="arrow-back" size={23} color={cores.texto} />
+          <Ionicons name="arrow-back" size={22} color={tema.cores.texto} />
         </TouchableOpacity>
       )}
 
       <View style={estilos.textos}>
-        <Text style={estilos.titulo}>{titulo}</Text>
+        <Text style={estilos.titulo} accessibilityRole="header">
+          {titulo}
+        </Text>
 
         {subtitulo ? <Text style={estilos.subtitulo}>{subtitulo}</Text> : null}
       </View>
@@ -29,36 +35,38 @@ export default function CabecalhoTela({ titulo, subtitulo, aoVoltar }) {
   );
 }
 
-const estilos = StyleSheet.create({
-  cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 25,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    cabecalho: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: tema.espaco.xl,
+    },
 
-  botaoVoltar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: cores.branco,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 13,
-  },
+    botaoVoltar: {
+      width: tema.areaToque,
+      height: tema.areaToque,
+      borderRadius: tema.areaToque / 2,
+      backgroundColor: tema.cores.superficieVidro,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: tema.cores.bordaForte,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: tema.espaco.md,
+    },
 
-  textos: {
-    flex: 1,
-  },
+    textos: {
+      flex: 1,
+    },
 
-  titulo: {
-    fontSize: 25,
-    fontWeight: '800',
-    color: cores.texto,
-  },
+    titulo: {
+      ...tema.tipografia.tituloTela,
+      color: tema.cores.texto,
+    },
 
-  subtitulo: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-    marginTop: 3,
-  },
-});
+    subtitulo: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginTop: tema.espaco.xs,
+    },
+  });

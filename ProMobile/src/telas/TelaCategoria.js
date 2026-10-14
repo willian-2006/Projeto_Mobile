@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -19,11 +19,15 @@ import EstadoVazio from '../componentes/EstadoVazio';
 
 import ItemTarefa from '../componentes/ItemTarefa';
 
+import Tela from '../componentes/Tela';
+
 import { useTarefas } from '../contexto/TarefasContexto';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { buscarCategoria } from '../dados/categorias';
 
-import { cores } from '../estilos/cores';
+import { brilho } from '../estilos/sombras';
 
 // Ignora um segundo envio logo após o primeiro
 // (onSubmitEditing + toque no botão).
@@ -32,6 +36,10 @@ const INTERVALO_MINIMO_ENVIO = 500;
 const TAMANHO_MAXIMO_TITULO = 80;
 
 export default function TelaCategoria({ route, navigation }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const categoria = buscarCategoria(route.params?.chave);
 
   const { tarefas, aoAdicionar, aoAlternar, aoExcluir } = useTarefas();
@@ -43,27 +51,33 @@ export default function TelaCategoria({ route, navigation }) {
   const aoVoltar = useCallback(() => navigation.goBack(), [navigation]);
 
   const renderizarTarefa = useCallback(
-    ({ item }) => (
-      <ItemTarefa tarefa={item} aoAlternar={aoAlternar} aoExcluir={aoExcluir} />
+    ({ item, index }) => (
+      <ItemTarefa
+        tarefa={item}
+        indice={index}
+        aoAlternar={aoAlternar}
+        aoExcluir={aoExcluir}
+      />
     ),
     [aoAlternar, aoExcluir]
   );
 
   if (!categoria) {
     return (
-      <SafeAreaView style={estilos.areaSegura}>
+      <Tela>
         <View style={estilos.conteudoRolagem}>
           <CabecalhoTela titulo="Categoria" aoVoltar={aoVoltar} />
 
           <EstadoVazio
             icone="alert-circle-outline"
-            cor={cores.textoSecundario}
             titulo="Categoria não encontrada"
           />
         </View>
-      </SafeAreaView>
+      </Tela>
     );
   }
+
+  const coresCategoria = tema.categorias[categoria.chave];
 
   const tarefasCategoria = tarefas.filter(
     tarefa => tarefa.categoria === categoria.chave
@@ -97,31 +111,53 @@ export default function TelaCategoria({ route, navigation }) {
         <TextInput
           style={estilos.input}
           placeholder="Adicionar tarefa..."
-          placeholderTextColor={cores.textoSecundario}
+          placeholderTextColor={tema.cores.textoSecundario}
+          selectionColor={coresCategoria.cor}
           value={novaTarefa}
           onChangeText={setNovaTarefa}
           onSubmitEditing={adicionar}
           maxLength={TAMANHO_MAXIMO_TITULO}
           returnKeyType="done"
+          accessibilityLabel={`Nova tarefa de ${categoria.titulo}`}
         />
 
         <TouchableOpacity
-          style={[estilos.botaoAdicionar, { backgroundColor: categoria.cor }]}
+          style={[
+            estilos.botaoAdicionar,
+            brilho(coresCategoria.gradiente[1], 0.8, coresCategoria.cor),
+          ]}
           onPress={adicionar}
+          activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel="Adicionar tarefa"
         >
-          <Ionicons name="add" size={25} color={cores.branco} />
+          <LinearGradient
+            colors={coresCategoria.gradiente}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={estilos.gradienteBotao}
+          >
+            <Ionicons
+              name="add"
+              size={26}
+              color={tema.cores.textoSobreDestaque}
+            />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
 
       <View style={estilos.cabecalhoTarefas}>
-        <Text style={estilos.tituloSecao}>Minhas tarefas</Text>
+        <Text style={estilos.tituloSecao} accessibilityRole="header">
+          Minhas tarefas
+        </Text>
 
         <View
-          style={[estilos.contador, { backgroundColor: categoria.corFundo }]}
+          style={[
+            estilos.contador,
+            { backgroundColor: coresCategoria.corSuave },
+          ]}
         >
-          <Text style={[estilos.textoContador, { color: categoria.cor }]}>
+          <Text style={[estilos.textoContador, { color: coresCategoria.cor }]}>
             {tarefasCategoria.length}
           </Text>
         </View>
@@ -130,7 +166,7 @@ export default function TelaCategoria({ route, navigation }) {
   );
 
   return (
-    <SafeAreaView style={estilos.areaSegura}>
+    <Tela>
       <FlatList
         data={tarefasCategoria}
         keyExtractor={tarefa => tarefa.id}
@@ -139,79 +175,82 @@ export default function TelaCategoria({ route, navigation }) {
         ListEmptyComponent={
           <EstadoVazio
             icone={categoria.iconeVazio}
-            cor={categoria.cor}
+            gradiente={coresCategoria.gradiente}
             titulo={categoria.textoVazio}
-            subtitulo="Adicione uma tarefa para começar"
+            subtitulo="Comece com algo pequeno: um passo já conta pontos"
           />
         }
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
       />
-    </SafeAreaView>
+    </Tela>
   );
 }
 
-const estilos = StyleSheet.create({
-  areaSegura: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    conteudoRolagem: {
+      paddingHorizontal: tema.espaco.xl - 4,
+      paddingTop: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.xxl,
+    },
 
-  conteudoRolagem: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 30,
-  },
+    areaAdicionar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: tema.espaco.xxl - 4,
+    },
 
-  areaAdicionar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 28,
-  },
+    input: {
+      ...tema.tipografia.corpo,
+      flex: 1,
+      height: 52,
+      backgroundColor: tema.cores.superficieVidro,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: tema.cores.bordaForte,
+      borderRadius: tema.raio.md,
+      paddingHorizontal: tema.espaco.lg,
+      color: tema.cores.texto,
+    },
 
-  input: {
-    flex: 1,
-    height: 50,
-    backgroundColor: cores.branco,
-    borderRadius: 15,
-    paddingHorizontal: 16,
-    fontSize: 14,
-    color: cores.texto,
-  },
+    botaoAdicionar: {
+      width: 52,
+      height: 52,
+      borderRadius: tema.raio.md,
+      marginLeft: tema.espaco.sm + 2,
+    },
 
-  botaoAdicionar: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
+    gradienteBotao: {
+      flex: 1,
+      borderRadius: tema.raio.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
-  cabecalhoTarefas: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
+    cabecalhoTarefas: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: tema.espaco.lg,
+    },
 
-  tituloSecao: {
-    fontSize: 19,
-    fontWeight: '700',
-    color: cores.texto,
-  },
+    tituloSecao: {
+      ...tema.tipografia.tituloSecao,
+      color: tema.cores.texto,
+    },
 
-  contador: {
-    minWidth: 28,
-    height: 28,
-    borderRadius: 14,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+    contador: {
+      minWidth: 28,
+      height: 28,
+      borderRadius: 14,
+      paddingHorizontal: tema.espaco.sm,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
-  textoContador: {
-    fontWeight: '700',
-  },
-});
+    textoContador: {
+      ...tema.tipografia.numeros,
+      fontSize: 13,
+    },
+  });

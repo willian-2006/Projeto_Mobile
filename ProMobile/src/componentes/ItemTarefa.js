@@ -1,147 +1,247 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
+
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { Ionicons } from '@expo/vector-icons';
+
+import Cartao from './Cartao';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { buscarCategoria } from '../dados/categorias';
 
-import { cores } from '../estilos/cores';
+import {
+  entradaCascata,
+  mola,
+  saida,
+  transicaoRapida,
+} from '../estilos/movimento';
 
-function ItemTarefa({ tarefa, aoAlternar, aoExcluir }) {
+import { vibrarConclusao, vibrarExclusao } from '../servicos/vibracao';
+
+function ItemTarefa({ tarefa, indice, aoAlternar, aoExcluir }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const categoria = buscarCategoria(tarefa.categoria);
 
+  const coresCategoria =
+    tema.categorias[tarefa.categoria] || tema.categorias.estudos;
+
+  const preenchimento = useSharedValue(tarefa.concluida ? 1 : 0);
+
+  const escala = useSharedValue(1);
+
+  useEffect(() => {
+    preenchimento.set(withTiming(tarefa.concluida ? 1 : 0, transicaoRapida));
+  }, [tarefa.concluida, preenchimento]);
+
+  const estiloCheck = useAnimatedStyle(() => ({
+    transform: [{ scale: escala.value }],
+  }));
+
+  const estiloPreenchimento = useAnimatedStyle(() => ({
+    opacity: preenchimento.value,
+  }));
+
+  function alternar() {
+    if (!tarefa.concluida) {
+      // Pulso de escala ao concluir.
+      escala.set(
+        withSequence(withTiming(1.25, transicaoRapida), withSpring(1, mola))
+      );
+
+      vibrarConclusao();
+    }
+
+    aoAlternar(tarefa.id);
+  }
+
+  function excluir() {
+    vibrarExclusao();
+
+    aoExcluir(tarefa.id);
+  }
+
   return (
-    <View style={estilos.container}>
-      <TouchableOpacity
-        style={estilos.areaTarefa}
-        onPress={() => aoAlternar(tarefa.id)}
-        activeOpacity={0.7}
-      >
-        <View
-          style={[
-            estilos.checkbox,
-            tarefa.concluida && estilos.checkboxConcluido,
-          ]}
+    <Animated.View entering={entradaCascata(indice)} exiting={saida}>
+      <Cartao vidro={false} style={estilos.container}>
+        <TouchableOpacity
+          style={estilos.areaTarefa}
+          onPress={alternar}
+          activeOpacity={0.7}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: tarefa.concluida }}
+          accessibilityLabel={tarefa.titulo}
+          accessibilityHint={
+            tarefa.concluida ? 'Marcar como pendente' : 'Marcar como concluída'
+          }
         >
-          {tarefa.concluida && (
-            <Ionicons name="checkmark" size={16} color={cores.branco} />
-          )}
-        </View>
+          <Animated.View style={[estilos.checkbox, estiloCheck]}>
+            <Animated.View
+              style={[StyleSheet.absoluteFill, estiloPreenchimento]}
+            >
+              <LinearGradient
+                colors={coresCategoria.gradiente}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
 
-        <View style={estilos.conteudo}>
-          <Text
-            style={[
-              estilos.titulo,
-              tarefa.concluida && estilos.tituloConcluido,
-            ]}
-          >
-            {tarefa.titulo}
-          </Text>
+              <View style={estilos.iconeCheck}>
+                <Ionicons
+                  name="checkmark"
+                  size={16}
+                  color={tema.cores.textoSobreDestaque}
+                />
+              </View>
+            </Animated.View>
+          </Animated.View>
 
-          <View style={estilos.informacoes}>
-            <Text style={estilos.categoria}>
-              {categoria ? categoria.titulo : tarefa.categoria}
+          <View style={estilos.conteudo}>
+            <Text
+              style={[
+                estilos.titulo,
+                tarefa.concluida && estilos.tituloConcluido,
+              ]}
+            >
+              {tarefa.titulo}
             </Text>
 
-            <Text style={estilos.separador}>•</Text>
+            <View style={estilos.informacoes}>
+              <View
+                style={[
+                  estilos.marcador,
+                  { backgroundColor: coresCategoria.cor },
+                ]}
+              />
 
-            <Text style={estilos.pontos}>+{tarefa.pontos} pontos</Text>
+              <Text style={estilos.categoria}>
+                {categoria ? categoria.titulo : tarefa.categoria}
+              </Text>
+
+              <Text style={estilos.separador}>•</Text>
+
+              <Text style={[estilos.pontos, { color: coresCategoria.cor }]}>
+                +{tarefa.pontos} pts
+              </Text>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={estilos.botaoExcluir}
-        onPress={() => aoExcluir(tarefa.id)}
-        activeOpacity={0.7}
-      >
-        <Ionicons
-          name="trash-outline"
-          size={20}
-          color={cores.textoSecundario}
-        />
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={estilos.botaoExcluir}
+          onPress={excluir}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Excluir ${tarefa.titulo}`}
+        >
+          <Ionicons
+            name="trash-outline"
+            size={20}
+            color={tema.cores.textoSecundario}
+          />
+        </TouchableOpacity>
+      </Cartao>
+    </Animated.View>
   );
 }
 
 export default memo(ItemTarefa);
 
-const estilos = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: cores.branco,
-    borderRadius: 16,
-    padding: 15,
-    marginBottom: 10,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: tema.raio.md,
+      paddingVertical: tema.espaco.md,
+      paddingLeft: tema.espaco.lg,
+      paddingRight: tema.espaco.xs,
+      marginBottom: tema.espaco.sm + 2,
+    },
 
-  areaTarefa: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+    areaTarefa: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      minHeight: tema.areaToque,
+    },
 
-  checkbox: {
-    width: 25,
-    height: 25,
-    borderRadius: 13,
-    borderWidth: 2,
-    borderColor: cores.borda,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 13,
-  },
+    checkbox: {
+      width: 26,
+      height: 26,
+      borderRadius: 13,
+      borderWidth: 2,
+      borderColor: tema.cores.bordaForte,
+      overflow: 'hidden',
+      marginRight: tema.espaco.md,
+    },
 
-  checkboxConcluido: {
-    backgroundColor: cores.sucesso,
-    borderColor: cores.sucesso,
-  },
+    iconeCheck: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
 
-  conteudo: {
-    flex: 1,
-  },
+    conteudo: {
+      flex: 1,
+    },
 
-  titulo: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: cores.texto,
-  },
+    titulo: {
+      ...tema.tipografia.corpoMedio,
+      color: tema.cores.texto,
+    },
 
-  tituloConcluido: {
-    textDecorationLine: 'line-through',
-    color: cores.textoSecundario,
-  },
+    tituloConcluido: {
+      textDecorationLine: 'line-through',
+      color: tema.cores.textoSecundario,
+    },
 
-  informacoes: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
+    informacoes: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: tema.espaco.xs,
+    },
 
-  categoria: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-  },
+    marcador: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      marginRight: 6,
+    },
 
-  separador: {
-    marginHorizontal: 5,
-    color: cores.textoSecundario,
-  },
+    categoria: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+    },
 
-  pontos: {
-    fontSize: 12,
-    color: cores.principal,
-    fontWeight: '600',
-  },
+    separador: {
+      marginHorizontal: 6,
+      color: tema.cores.textoTerciario,
+    },
 
-  botaoExcluir: {
-    width: 38,
-    height: 38,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-});
+    pontos: {
+      ...tema.tipografia.legendaDestaque,
+      ...tema.tipografia.numeros,
+    },
+
+    botaoExcluir: {
+      width: tema.areaToque,
+      height: tema.areaToque,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: tema.espaco.xs,
+    },
+  });

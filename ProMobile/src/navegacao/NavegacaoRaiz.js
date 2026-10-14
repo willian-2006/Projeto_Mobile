@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import {
+  DarkTheme,
+  DefaultTheme,
+  NavigationContainer,
+} from '@react-navigation/native';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { StatusBar } from 'expo-status-bar';
+
+import { useFonts } from 'expo-font';
 
 import AbasInferiores from './AbasInferiores';
 
@@ -10,36 +18,70 @@ import Carregando from '../componentes/Carregando';
 
 import { useTarefas } from '../contexto/TarefasContexto';
 
-import { cores } from '../estilos/cores';
+import { useTema } from '../contexto/TemaContexto';
+
+import { arquivosFontes } from '../estilos/fontes';
+
+import { useAvisoMeta } from '../hooks/useAvisoMeta';
 
 import TelaCategoria from '../telas/TelaCategoria';
 
 const Pilha = createNativeStackNavigator();
 
-const tema = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: cores.fundo,
-    card: cores.branco,
-    primary: cores.principal,
-    text: cores.texto,
-    border: cores.borda,
-  },
-};
-
 // O native-stack trata o botão voltar do Android:
 // na tela de categoria ele volta para as abas.
 export default function NavegacaoRaiz() {
-  const { carregando } = useTarefas();
+  const { carregando: carregandoTarefas } = useTarefas();
 
-  if (carregando) {
-    return <Carregando />;
+  const { tema, carregando: carregandoTema } = useTema();
+
+  // Se a fonte falhar, segue com a fonte do sistema em vez de travar.
+  const [fontesCarregadas, erroFontes] = useFonts(arquivosFontes);
+
+  useAvisoMeta();
+
+  const temaNavegacao = useMemo(() => {
+    const base = tema.escuro ? DarkTheme : DefaultTheme;
+
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        background: tema.cores.fundo,
+        card: tema.cores.superficie,
+        primary: tema.cores.principal,
+        text: tema.cores.texto,
+        border: tema.cores.borda,
+      },
+    };
+  }, [tema]);
+
+  const barraStatus = <StatusBar style={tema.escuro ? 'light' : 'dark'} />;
+
+  if (
+    carregandoTarefas ||
+    carregandoTema ||
+    !(fontesCarregadas || erroFontes)
+  ) {
+    return (
+      <>
+        {barraStatus}
+
+        <Carregando />
+      </>
+    );
   }
 
   return (
-    <NavigationContainer theme={tema}>
-      <Pilha.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer theme={temaNavegacao}>
+      {barraStatus}
+
+      <Pilha.Navigator
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: tema.cores.fundo },
+        }}
+      >
         <Pilha.Screen name="Abas" component={AbasInferiores} />
 
         <Pilha.Screen name="Categoria" component={TelaCategoria} />

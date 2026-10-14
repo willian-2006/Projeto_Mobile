@@ -60,6 +60,30 @@ export async function carregarDados() {
   }
 }
 
+export const CHAVE_TEMA = '@promobile/tema';
+
+export const PREFERENCIAS_TEMA = ['sistema', 'escuro', 'claro'];
+
+export async function carregarPreferenciaTema() {
+  try {
+    const preferencia = await AsyncStorage.getItem(CHAVE_TEMA);
+
+    return PREFERENCIAS_TEMA.includes(preferencia) ? preferencia : 'sistema';
+  } catch (erro) {
+    console.warn('Não foi possível carregar o tema.', erro);
+
+    return 'sistema';
+  }
+}
+
+export async function salvarPreferenciaTema(preferencia) {
+  try {
+    await AsyncStorage.setItem(CHAVE_TEMA, preferencia);
+  } catch (erro) {
+    console.warn('Não foi possível salvar o tema.', erro);
+  }
+}
+
 export async function salvarDados(tarefas) {
   try {
     await AsyncStorage.setItem(

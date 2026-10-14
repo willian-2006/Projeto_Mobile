@@ -1,7 +1,6 @@
-import { cores } from '../estilos/cores';
-
 // A `chave` (sem acento) é o que fica salvo em cada tarefa;
-// o `titulo` serve só para exibição.
+// o `titulo` serve só para exibição. As cores de cada categoria
+// dependem do tema: veja `categorias` em src/estilos/cores.js.
 export const CATEGORIAS = [
   {
     chave: 'saude',
@@ -10,9 +9,6 @@ export const CATEGORIAS = [
     icone: 'heart',
     iconeVazio: 'heart-outline',
     textoVazio: 'Nenhuma tarefa de saúde',
-    cor: cores.saudeIcone,
-    corFundo: cores.saude,
-    gradiente: [cores.saude, cores.saudeIcone],
   },
 
   {
@@ -22,9 +18,6 @@ export const CATEGORIAS = [
     icone: 'book',
     iconeVazio: 'book-outline',
     textoVazio: 'Nenhuma tarefa de estudos',
-    cor: cores.estudosIcone,
-    corFundo: cores.estudos,
-    gradiente: [cores.estudos, cores.estudosIcone],
   },
 
   {
@@ -34,9 +27,6 @@ export const CATEGORIAS = [
     icone: 'briefcase',
     iconeVazio: 'briefcase-outline',
     textoVazio: 'Nenhuma tarefa de trabalho',
-    cor: cores.trabalhoIcone,
-    corFundo: cores.trabalho,
-    gradiente: [cores.trabalho, cores.trabalhoIcone],
   },
 
   {
@@ -46,9 +36,6 @@ export const CATEGORIAS = [
     icone: 'heart-circle',
     iconeVazio: 'heart-circle-outline',
     textoVazio: 'Nenhuma tarefa devocional',
-    cor: cores.devocionalIcone,
-    corFundo: cores.devocional,
-    gradiente: [cores.devocional, cores.devocionalIcone],
   },
 ];
 

@@ -8,23 +8,35 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated from 'react-native-reanimated';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import CabecalhoTela from '../componentes/CabecalhoTela';
 
+import Cartao from '../componentes/Cartao';
+
+import IconeGradiente from '../componentes/IconeGradiente';
+
+import Tela from '../componentes/Tela';
+
 import { useEstatisticas } from '../contexto/TarefasContexto';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { CATEGORIAS } from '../dados/categorias';
 
-import { cores } from '../estilos/cores';
+import { entradaCascata } from '../estilos/movimento';
 
 export default function Rotina({ navigation }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
   const estatisticas = useEstatisticas();
 
   return (
-    <SafeAreaView style={estilos.areaSegura} edges={['top']}>
+    <Tela edges={['top']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={estilos.conteudoRolagem}
@@ -34,102 +46,93 @@ export default function Rotina({ navigation }) {
           subtitulo="Escolha uma área para organizar"
         />
 
-        {CATEGORIAS.map(categoria => {
+        {CATEGORIAS.map((categoria, indice) => {
           const resumo = estatisticas.porCategoria[categoria.chave];
 
+          const coresCategoria = tema.categorias[categoria.chave];
+
           return (
-            <TouchableOpacity
+            <Animated.View
               key={categoria.chave}
-              style={estilos.linha}
-              activeOpacity={0.7}
-              onPress={() =>
-                navigation.navigate('Categoria', { chave: categoria.chave })
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`Abrir ${categoria.titulo}`}
+              entering={entradaCascata(indice)}
             >
-              <View
-                style={[estilos.icone, { backgroundColor: categoria.corFundo }]}
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() =>
+                  navigation.navigate('Categoria', { chave: categoria.chave })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`Abrir ${categoria.titulo}: ${resumo.concluidas} de ${resumo.tarefas} concluídas`}
               >
-                <Ionicons
-                  name={categoria.icone}
-                  size={22}
-                  color={categoria.cor}
-                />
-              </View>
+                <Cartao style={estilos.linha}>
+                  <IconeGradiente
+                    icone={categoria.icone}
+                    gradiente={coresCategoria.gradiente}
+                    tamanho={46}
+                    tamanhoIcone={22}
+                  />
 
-              <View style={estilos.textos}>
-                <Text style={estilos.titulo}>{categoria.titulo}</Text>
+                  <View style={estilos.textos}>
+                    <Text style={estilos.titulo}>{categoria.titulo}</Text>
 
-                <Text style={estilos.subtitulo}>{categoria.subtitulo}</Text>
-              </View>
+                    <Text style={estilos.subtitulo}>{categoria.subtitulo}</Text>
+                  </View>
 
-              <Text style={[estilos.contagem, { color: categoria.cor }]}>
-                {resumo.concluidas}/{resumo.tarefas}
-              </Text>
+                  <Text
+                    style={[estilos.contagem, { color: coresCategoria.cor }]}
+                  >
+                    {resumo.concluidas}/{resumo.tarefas}
+                  </Text>
 
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={cores.textoSecundario}
-              />
-            </TouchableOpacity>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={tema.cores.textoTerciario}
+                  />
+                </Cartao>
+              </TouchableOpacity>
+            </Animated.View>
           );
         })}
       </ScrollView>
-    </SafeAreaView>
+    </Tela>
   );
 }
 
-const estilos = StyleSheet.create({
-  areaSegura: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    conteudoRolagem: {
+      paddingHorizontal: tema.espaco.xl - 4,
+      paddingTop: tema.espaco.xl - 4,
+      paddingBottom: tema.espaco.xl - 4,
+    },
 
-  conteudoRolagem: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
+    linha: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: tema.espaco.lg,
+      marginBottom: tema.espaco.md,
+    },
 
-  linha: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: cores.branco,
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
-  },
+    textos: {
+      flex: 1,
+      marginLeft: tema.espaco.md + 2,
+    },
 
-  icone: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
-  },
+    titulo: {
+      ...tema.tipografia.tituloCartao,
+      color: tema.cores.texto,
+    },
 
-  textos: {
-    flex: 1,
-  },
+    subtitulo: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginTop: 2,
+    },
 
-  titulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: cores.texto,
-  },
-
-  subtitulo: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-    marginTop: 3,
-  },
-
-  contagem: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginHorizontal: 8,
-  },
-});
+    contagem: {
+      ...tema.tipografia.numeros,
+      fontSize: 14,
+      marginHorizontal: tema.espaco.sm,
+    },
+  });

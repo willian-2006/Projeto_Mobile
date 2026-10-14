@@ -1,45 +1,53 @@
 import React from 'react';
 
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import Cartao from './Cartao';
 
-import { cores } from '../estilos/cores';
+import IconeGradiente from './IconeGradiente';
 
-export default function EstadoVazio({ icone, cor, titulo, subtitulo }) {
+import { useEstilos } from '../contexto/TemaContexto';
+
+export default function EstadoVazio({ icone, gradiente, titulo, subtitulo }) {
+  const estilos = useEstilos(criarEstilos);
+
   return (
-    <View style={estilos.vazio}>
-      <Ionicons name={icone} size={45} color={cor} />
+    <Cartao style={estilos.vazio}>
+      <IconeGradiente
+        icone={icone}
+        gradiente={gradiente}
+        tamanho={64}
+        tamanhoIcone={30}
+        redondo
+      />
 
       <Text style={estilos.textoVazio}>{titulo}</Text>
 
       {subtitulo ? (
         <Text style={estilos.subtextoVazio}>{subtitulo}</Text>
       ) : null}
-    </View>
+    </Cartao>
   );
 }
 
-const estilos = StyleSheet.create({
-  vazio: {
-    backgroundColor: cores.branco,
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-  },
+const criarEstilos = tema =>
+  StyleSheet.create({
+    vazio: {
+      padding: tema.espaco.xxl,
+      alignItems: 'center',
+    },
 
-  textoVazio: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: cores.texto,
-    marginTop: 12,
-    textAlign: 'center',
-  },
+    textoVazio: {
+      ...tema.tipografia.tituloCartao,
+      color: tema.cores.texto,
+      marginTop: tema.espaco.lg,
+      textAlign: 'center',
+    },
 
-  subtextoVazio: {
-    fontSize: 12,
-    color: cores.textoSecundario,
-    marginTop: 5,
-    textAlign: 'center',
-  },
-});
+    subtextoVazio: {
+      ...tema.tipografia.legenda,
+      color: tema.cores.textoSecundario,
+      marginTop: tema.espaco.xs,
+      textAlign: 'center',
+    },
+  });

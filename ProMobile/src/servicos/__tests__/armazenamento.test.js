@@ -2,17 +2,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
   CHAVE_ARMAZENAMENTO,
+  CHAVE_TEMA,
   VERSAO_ATUAL,
   carregarDados,
+  carregarPreferenciaTema,
   migrarDados,
   salvarDados,
+  salvarPreferenciaTema,
 } from '../armazenamento';
 
 import { tarefasIniciais } from '../../dados/tarefas';
-
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-);
 
 const tarefa = {
   id: 'x1',
@@ -113,5 +112,23 @@ describe('migrarDados', () => {
     expect(migrarDados({ versao: VERSAO_ATUAL, tarefas: [tarefa] })).toEqual([
       tarefa,
     ]);
+  });
+});
+
+describe('preferência de tema', () => {
+  it('usa "sistema" quando nada foi salvo', async () => {
+    expect(await carregarPreferenciaTema()).toBe('sistema');
+  });
+
+  it('carrega a preferência salva', async () => {
+    await salvarPreferenciaTema('claro');
+
+    expect(await carregarPreferenciaTema()).toBe('claro');
+  });
+
+  it('ignora valor inválido', async () => {
+    await AsyncStorage.setItem(CHAVE_TEMA, 'roxo');
+
+    expect(await carregarPreferenciaTema()).toBe('sistema');
   });
 });
