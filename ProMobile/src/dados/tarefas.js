@@ -1,48 +1,48 @@
 export const tarefasIniciais = [
   {
-    id: 1,
+    id: '1',
     titulo: 'Beber 2L de água',
-    categoria: 'Saúde',
+    categoria: 'saude',
     pontos: 10,
     concluida: false,
   },
 
   {
-    id: 2,
+    id: '2',
     titulo: 'Estudar Java por 1 hora',
-    categoria: 'Estudos',
+    categoria: 'estudos',
     pontos: 15,
     concluida: false,
   },
 
   {
-    id: 3,
+    id: '3',
     titulo: 'Finalizar projeto da faculdade',
-    categoria: 'Estudos',
+    categoria: 'estudos',
     pontos: 20,
     concluida: false,
   },
 
   {
-    id: 4,
+    id: '4',
     titulo: 'Fazer treino',
-    categoria: 'Saúde',
+    categoria: 'saude',
     pontos: 20,
     concluida: false,
   },
 
   {
-    id: 5,
+    id: '5',
     titulo: 'Fazer devocional',
-    categoria: 'Devocional',
+    categoria: 'devocional',
     pontos: 10,
     concluida: false,
   },
 
   {
-    id: 6,
+    id: '6',
     titulo: 'Organizar tarefas do dia',
-    categoria: 'Trabalho',
+    categoria: 'trabalho',
     pontos: 10,
     concluida: false,
   },

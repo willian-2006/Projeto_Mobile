@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
@@ -6,7 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { cores } from '../estilos/cores';
 
-export default function CartaoCategoria({
+function CartaoCategoria({
+  chave,
   titulo,
   icone,
   tarefas,
@@ -18,7 +19,7 @@ export default function CartaoCategoria({
   return (
     <TouchableOpacity
       style={estilos.cartao}
-      onPress={aoPressionar}
+      onPress={() => aoPressionar(chave)}
       activeOpacity={0.7}
     >
       <View
@@ -42,6 +43,8 @@ export default function CartaoCategoria({
     </TouchableOpacity>
   );
 }
+
+export default memo(CartaoCategoria);
 
 const estilos = StyleSheet.create({
   cartao: {

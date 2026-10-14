@@ -1,15 +1,51 @@
-export function calcularPontosMaximos(tarefas) {
-  return tarefas.reduce((total, tarefa) => total + tarefa.pontos, 0);
-}
+import { CATEGORIAS } from '../dados/categorias';
 
-export function calcularPontosAtuais(tarefas) {
-  return tarefas
-    .filter(tarefa => tarefa.concluida)
-    .reduce((total, tarefa) => total + tarefa.pontos, 0);
-}
+// Percorre a lista uma única vez e devolve os totais gerais
+// e o resumo de cada categoria.
+export function calcularEstatisticas(tarefas) {
+  const porCategoria = {};
 
-export function contarConcluidas(tarefas) {
-  return tarefas.filter(tarefa => tarefa.concluida).length;
+  CATEGORIAS.forEach(categoria => {
+    porCategoria[categoria.chave] = {
+      tarefas: 0,
+      concluidas: 0,
+      pontos: 0,
+      pontosConcluidos: 0,
+    };
+  });
+
+  let pontosMaximos = 0;
+  let pontosAtuais = 0;
+  let concluidas = 0;
+
+  tarefas.forEach(tarefa => {
+    pontosMaximos += tarefa.pontos;
+
+    if (tarefa.concluida) {
+      pontosAtuais += tarefa.pontos;
+      concluidas += 1;
+    }
+
+    const resumo = porCategoria[tarefa.categoria];
+
+    if (resumo) {
+      resumo.tarefas += 1;
+      resumo.pontos += tarefa.pontos;
+
+      if (tarefa.concluida) {
+        resumo.concluidas += 1;
+        resumo.pontosConcluidos += tarefa.pontos;
+      }
+    }
+  });
+
+  return {
+    total: tarefas.length,
+    concluidas,
+    pontosMaximos,
+    pontosAtuais,
+    porCategoria,
+  };
 }
 
 // Sem pontos possíveis (lista vazia), o progresso é 0%.

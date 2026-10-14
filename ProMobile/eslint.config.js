@@ -18,6 +18,8 @@ module.exports = defineConfig([
         test: 'readonly',
         expect: 'readonly',
         jest: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
       },
     },
   },

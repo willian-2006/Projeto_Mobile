@@ -6,44 +6,66 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { cores } from '../estilos/cores';
 
-const itens = [
-  {
+const itens = {
+  Inicio: {
     nome: 'Início',
     icone: 'home',
   },
 
-  {
+  Tarefas: {
     nome: 'Tarefas',
     icone: 'checkmark-circle-outline',
   },
 
-  {
+  Metas: {
     nome: 'Metas',
     icone: 'trophy-outline',
   },
 
-  {
+  Rotina: {
     nome: 'Rotina',
     icone: 'calendar-outline',
   },
 
-  {
+  Perfil: {
     nome: 'Perfil',
     icone: 'person-outline',
   },
-];
+};
 
-export default function NavegacaoInferior() {
+// Barra usada pelo bottom-tabs (prop `tabBar`): recebe o estado
+// da navegação e as margens seguras da tela.
+export default function NavegacaoInferior({ state, navigation, insets }) {
   return (
-    <View style={estilos.container}>
-      {itens.map((item, indice) => {
-        const ativo = indice === 0;
+    <View
+      style={[estilos.container, { paddingBottom: Math.max(insets.bottom, 8) }]}
+    >
+      {state.routes.map((rota, indice) => {
+        const item = itens[rota.name];
+
+        const ativo = state.index === indice;
+
+        function aoPressionar() {
+          const evento = navigation.emit({
+            type: 'tabPress',
+            target: rota.key,
+            canPreventDefault: true,
+          });
+
+          if (!ativo && !evento.defaultPrevented) {
+            navigation.navigate(rota.name);
+          }
+        }
 
         return (
           <TouchableOpacity
-            key={item.nome}
+            key={rota.key}
             style={estilos.item}
             activeOpacity={0.7}
+            onPress={aoPressionar}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: ativo }}
+            accessibilityLabel={item.nome}
           >
             <Ionicons
               name={item.icone}
@@ -63,12 +85,7 @@ export default function NavegacaoInferior() {
 
 const estilos = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-
-    height: 75,
+    minHeight: 75,
 
     backgroundColor: cores.branco,
 
@@ -79,13 +96,14 @@ const estilos = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
 
-    paddingBottom: 8,
+    paddingTop: 8,
   },
 
   item: {
     alignItems: 'center',
     justifyContent: 'center',
     width: 65,
+    minHeight: 44,
   },
 
   texto: {

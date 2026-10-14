@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
+import { buscarCategoria } from '../dados/categorias';
+
 import { cores } from '../estilos/cores';
 
-export default function ItemTarefa({ tarefa, aoAlternar, aoExcluir }) {
+function ItemTarefa({ tarefa, aoAlternar, aoExcluir }) {
+  const categoria = buscarCategoria(tarefa.categoria);
+
   return (
     <View style={estilos.container}>
       <TouchableOpacity
@@ -36,7 +40,9 @@ export default function ItemTarefa({ tarefa, aoAlternar, aoExcluir }) {
           </Text>
 
           <View style={estilos.informacoes}>
-            <Text style={estilos.categoria}>{tarefa.categoria}</Text>
+            <Text style={estilos.categoria}>
+              {categoria ? categoria.titulo : tarefa.categoria}
+            </Text>
 
             <Text style={estilos.separador}>•</Text>
 
@@ -59,6 +65,8 @@ export default function ItemTarefa({ tarefa, aoAlternar, aoExcluir }) {
     </View>
   );
 }
+
+export default memo(ItemTarefa);
 
 const estilos = StyleSheet.create({
   container: {
