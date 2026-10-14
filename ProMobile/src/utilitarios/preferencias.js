@@ -21,7 +21,6 @@ export function limitarMeta(meta) {
   return Math.min(Math.max(numero, META_MINIMA), META_MAXIMA);
 }
 
-// Sugestão de meta: cerca de 70% dos pontos do dia, de 10 em 10.
 export function sugerirMeta(pontosDoDia) {
   if (!pontosDoDia) {
     return PREFERENCIAS_PADRAO.meta;
@@ -30,7 +29,6 @@ export function sugerirMeta(pontosDoDia) {
   return limitarMeta(Math.round((pontosDoDia * 0.7) / PASSO_META) * PASSO_META);
 }
 
-// Completa o que falta e descarta valores inválidos.
 export function normalizarPreferencias(salvas) {
   const dados = salvas && typeof salvas === 'object' ? salvas : {};
 
@@ -65,7 +63,6 @@ export function normalizarPreferencias(salvas) {
   };
 }
 
-// Categorias favoritas primeiro, mantendo a ordem original no resto.
 export function ordenarCategorias(categorias, favoritas) {
   return [
     ...categorias.filter(categoria => favoritas.includes(categoria.chave)),

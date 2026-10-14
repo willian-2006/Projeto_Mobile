@@ -8,7 +8,6 @@ import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { brilho } from '../estilos/sombras';
 
-// Botão de ação principal com o gradiente do tema.
 export default function BotaoPrincipal({
   titulo,
   aoPressionar,

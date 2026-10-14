@@ -42,9 +42,6 @@ import TelaCategoria from '../telas/TelaCategoria';
 
 const Pilha = createNativeStackNavigator();
 
-// O native-stack trata o botão voltar do Android:
-// na tela de categoria ele volta para as abas. Enquanto o onboarding
-// não foi concluído, ele é a única tela da pilha.
 export default function NavegacaoRaiz() {
   const { carregando: carregandoTarefas } = useTarefas();
 
@@ -53,7 +50,6 @@ export default function NavegacaoRaiz() {
 
   const { tema, carregando: carregandoTema } = useTema();
 
-  // Se a fonte falhar, segue com a fonte do sistema em vez de travar.
   const [fontesCarregadas, erroFontes] = useFonts(arquivosFontes);
 
   const comemoracao = useComemoracaoMeta();

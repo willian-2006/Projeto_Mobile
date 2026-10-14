@@ -2,10 +2,8 @@ import { calcularEstatisticas } from './pontuacao';
 
 import { filtrarTarefasDoDia } from './tarefas';
 
-// Mais de um ano de histórico já basta para sequência e heatmap.
 export const LIMITE_HISTORICO = 400;
 
-// Resultado de um dia, como fica guardado no histórico.
 export function registrarDia(tarefas, chave, meta) {
   const estatisticas = calcularEstatisticas(
     filtrarTarefasDoDia(tarefas, chave)
@@ -27,10 +25,6 @@ export function registrarDia(tarefas, chave, meta) {
   };
 }
 
-// Fecha o dia `ultimoDia` quando a data muda: grava o resultado no
-// histórico, reabre as tarefas recorrentes e tira as tarefas de
-// "uma vez" já concluídas. Dias em que o app não foi aberto ficam
-// sem registro (contam como meta não batida).
 export function virarDia(dados, hoje, meta) {
   const { tarefas, historico, ultimoDia } = dados;
 
@@ -38,8 +32,6 @@ export function virarDia(dados, hoje, meta) {
     return dados;
   }
 
-  // Primeira abertura, ou relógio do aparelho voltou no tempo:
-  // só atualiza a data, sem mexer no histórico.
   if (!ultimoDia || ultimoDia > hoje) {
     return { ...dados, ultimoDia: hoje };
   }

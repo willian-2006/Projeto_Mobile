@@ -42,7 +42,7 @@ const entradaPasso = FadeInRight.duration(300).reduceMotion(
 const PASSOS = [
   {
     icone: 'sparkles',
-    titulo: 'Boas-vindas ao ProMobile',
+    titulo: 'Boas-vindas ao WillFlow',
     subtitulo: 'Transforme sua rotina em pontos. Como podemos te chamar?',
   },
   {
@@ -59,7 +59,6 @@ const PASSOS = [
   },
 ];
 
-// Três passos na primeira abertura: nome, categorias favoritas e meta.
 export default function Onboarding() {
   const { tema } = useTema();
 
@@ -75,7 +74,6 @@ export default function Onboarding() {
 
   const [favoritas, setFavoritas] = useState(preferencias.categoriasFavoritas);
 
-  // Quem já usava o app mantém a meta; na primeira vez, vem a sugestão.
   const [meta, setMeta] = useState(() =>
     preferencias.nome ? preferencias.meta : sugerirMeta(pontosMaximos)
   );

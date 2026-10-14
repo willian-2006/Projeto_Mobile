@@ -1,5 +1,3 @@
-// O avatar é a inicial do nome sobre um dos gradientes do tema
-// (`gradientePrincipal` ou o de uma categoria).
 export const CORES_AVATAR = [
   'principal',
   'saude',
@@ -8,7 +6,6 @@ export const CORES_AVATAR = [
   'devocional',
 ];
 
-// Nomes lidos pelo leitor de tela.
 export const NOMES_CORES_AVATAR = {
   principal: 'ciano e violeta',
   saude: 'verde',

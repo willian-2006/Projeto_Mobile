@@ -14,14 +14,12 @@ const TAMANHO = 120;
 
 const ESPESSURA = 16;
 
-// Espaço entre os segmentos do anel.
 const FOLGA = 3;
 
 const RAIO = (TAMANHO - ESPESSURA) / 2;
 
 const CIRCUNFERENCIA = 2 * Math.PI * RAIO;
 
-// Um segmento por categoria: onde começa no anel e o comprimento.
 function montarSegmentos(totais) {
   const total = CATEGORIAS.reduce(
     (soma, categoria) => soma + (totais[categoria.chave] || 0),
@@ -51,8 +49,6 @@ function montarSegmentos(totais) {
   return { total, segmentos };
 }
 
-// Anel dividido pelos pontos de cada categoria, com legenda ao lado.
-// `totais` é { chave: pontos }.
 export default function DistribuicaoCategorias({ totais }) {
   const { tema } = useTema();
 

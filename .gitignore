@@ -14,3 +14,6 @@ Thumbs.db
 
 # ambiente local
 .env*.local
+
+# instruções locais do Claude Code (não vão para o GitHub)
+CLAUDE.md

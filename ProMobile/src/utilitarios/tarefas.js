@@ -21,12 +21,9 @@ function normalizarRecorrencia(recorrencia) {
     .filter(dia => Number.isInteger(dia) && dia >= 0 && dia <= 6)
     .sort((a, b) => a - b);
 
-  // "Dias da semana" sem nenhum dia vira "todo dia".
   return dias.length > 0 ? { tipo, dias } : { ...RECORRENCIA_PADRAO };
 }
 
-// Completa os campos que faltam (tarefas antigas ou dados
-// incompletos) e descarta valores inválidos.
 export function normalizarTarefa(tarefa, hoje) {
   const pontos = Number(tarefa.pontos);
 
@@ -43,13 +40,11 @@ export function normalizarTarefa(tarefa, hoje) {
       : PRIORIDADE_PADRAO,
     horario,
     recorrencia: normalizarRecorrencia(tarefa.recorrencia),
-    // Sem horário não há quando avisar.
     lembrete: horario !== null && Boolean(tarefa.lembrete),
     criadaEm: tarefa.criadaEm || hoje,
   };
 }
 
-// A tarefa aparece (e conta para a meta) no dia `chave`?
 export function tarefaDoDia(tarefa, chave) {
   if (tarefa.recorrencia?.tipo === 'semanal') {
     return tarefa.recorrencia.dias.includes(diaDaSemana(chave));
@@ -62,8 +57,6 @@ export function filtrarTarefasDoDia(tarefas, chave) {
   return tarefas.filter(tarefa => tarefaDoDia(tarefa, chave));
 }
 
-// Move a tarefa `idOrigem` para a posição da tarefa `idDestino`.
-// Funciona com listas filtradas: só a ordem relativa importa.
 export function moverTarefa(tarefas, idOrigem, idDestino) {
   const origem = tarefas.findIndex(tarefa => tarefa.id === idOrigem);
 

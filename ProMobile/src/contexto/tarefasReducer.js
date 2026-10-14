@@ -28,7 +28,6 @@ export function tarefasReducer(tarefas, acao) {
     case ACOES.excluir:
       return tarefas.filter(tarefa => tarefa.id !== acao.id);
 
-    // O id nunca é alterado, mesmo que venha em `alteracoes`.
     case ACOES.editar:
       return tarefas.map(tarefa =>
         tarefa.id === acao.id
@@ -36,7 +35,6 @@ export function tarefasReducer(tarefas, acao) {
           : tarefa
       );
 
-    // Desfazer exclusão: devolve a tarefa à posição em que estava.
     case ACOES.reinserir: {
       if (tarefas.some(tarefa => tarefa.id === acao.tarefa.id)) {
         return tarefas;
@@ -59,10 +57,8 @@ export function tarefasReducer(tarefas, acao) {
   }
 }
 
-// Estado completo: { tarefas, historico, ultimoDia }.
 export function dadosReducer(dados, acao) {
   switch (acao.tipo) {
-    // Substitui tudo (ex.: dados carregados do armazenamento).
     case ACOES.restaurar:
       return acao.dados;
 

@@ -7,7 +7,6 @@ import {
 
 import { calcularPorcentagem } from './pontuacao';
 
-// Junta o histórico com o registro parcial de hoje, indexado por data.
 function indexar(historico, registroHoje) {
   const mapa = {};
 
@@ -20,7 +19,6 @@ function indexar(historico, registroHoje) {
   return mapa;
 }
 
-// Os últimos 7 dias, terminando hoje. Dias sem registro valem 0.
 export function pontosDaSemana(historico, registroHoje) {
   const mapa = indexar(historico, registroHoje);
 
@@ -39,7 +37,6 @@ export function pontosDaSemana(historico, registroHoje) {
   });
 }
 
-// Pontos de cada categoria nos últimos `dias` dias (incluindo hoje).
 export function distribuicaoPorCategoria(historico, registroHoje, dias = 7) {
   const mapa = indexar(historico, registroHoje);
 
@@ -60,9 +57,6 @@ export function distribuicaoPorCategoria(historico, registroHoje, dias = 7) {
   return totais;
 }
 
-// Grade do mês atual para o heatmap. `vazios` é quantas casas ficam
-// em branco antes do dia 1 (semana começando no domingo).
-// `porcentagem` é null em dias sem registro e nos dias futuros.
 export function calendarioDoMes(historico, registroHoje) {
   const mapa = indexar(historico, registroHoje);
 

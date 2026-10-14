@@ -15,8 +15,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { montarTema } from '../estilos/tema';
 
-// Tela mostrada quando algo quebra. Não depende de contexto nem de
-// fontes carregadas: o erro pode ter vindo justamente deles.
 function TelaErro({ erro, aoTentarDeNovo }) {
   const esquema = useColorScheme() === 'light' ? 'claro' : 'escuro';
 
@@ -60,9 +58,6 @@ function TelaErro({ erro, aoTentarDeNovo }) {
   );
 }
 
-// Error Boundary precisa ser um componente de classe (o React não tem
-// hook equivalente): é a única classe do projeto. "Tentar de novo"
-// remonta todo o app abaixo dele.
 export default class LimiteErro extends Component {
   state = { erro: null, tentativa: 0 };
 
@@ -116,8 +111,6 @@ const criarEstilos = tema =>
       marginBottom: tema.espaco.xl,
     },
 
-    // Fonte do sistema (as personalizadas podem não ter carregado),
-    // por isso aqui o peso vem de fontWeight.
     titulo: {
       fontSize: 26,
       fontWeight: '700',

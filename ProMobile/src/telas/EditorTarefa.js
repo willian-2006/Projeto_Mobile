@@ -45,7 +45,6 @@ import { INICIAIS_DIAS, NOMES_DIAS } from '../utilitarios/datas';
 
 const DIAS_SEMANA = [0, 1, 2, 3, 4, 5, 6];
 
-// Cria (params: categoria, titulo) ou edita (params: id) uma tarefa.
 export default function EditorTarefa({ route, navigation }) {
   const { tema } = useTema();
 
@@ -108,18 +107,15 @@ export default function EditorTarefa({ route, navigation }) {
     navigation.goBack();
   }
 
-  // Fecha antes de excluir, para a tela não mostrar "não encontrada".
   function excluir() {
     navigation.goBack();
     aoExcluir(existente.id);
   }
 
-  // Pontos antigos fora das opções (ex.: 15) continuam selecionáveis.
   const opcoesPontos = OPCOES_PONTOS.includes(campos.pontos)
     ? OPCOES_PONTOS
     : [...OPCOES_PONTOS, campos.pontos].sort((a, b) => a - b);
 
-  // A tarefa pode ter sido excluída enquanto o editor estava aberto.
   if (parametros.id && !existente) {
     return (
       <Tela>

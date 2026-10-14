@@ -4,10 +4,6 @@ export function metaBatida(registro) {
   return registro.meta > 0 && registro.pontos >= registro.meta;
 }
 
-// `atual`: dias seguidos batendo a meta até hoje. Hoje só entra
-// quando a meta já foi batida; enquanto não for, a sequência que
-// vem de ontem continua valendo até o fim do dia.
-// `recorde`: a maior sequência já registrada (incluindo a atual).
 export function calcularSequencia(historico, hoje, metaBatidaHoje) {
   const diasBatidos = new Set(
     historico.filter(metaBatida).map(registro => registro.data)

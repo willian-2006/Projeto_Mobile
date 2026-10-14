@@ -17,7 +17,6 @@ const QUANTIDADE = 40;
 
 const DURACAO = 2600;
 
-// Pseudoaleatório determinístico (mesma sequência a cada render).
 function aleatorio(indice, semente) {
   const valor = Math.sin(indice * 12.9898 + semente * 78.233) * 43758.5453;
 
@@ -73,8 +72,6 @@ function Particula({ indice, largura, altura, cor }) {
   );
 }
 
-// Chuva de confete que cai uma vez por toda a tela. Não aparece com
-// "reduzir movimento" ativo. Para repetir, troque a `key`.
 export default function Confete() {
   const { tema } = useTema();
 

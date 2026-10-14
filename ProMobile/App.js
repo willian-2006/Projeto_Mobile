@@ -20,8 +20,6 @@ import { TemaProvider } from './src/contexto/TemaContexto';
 
 import NavegacaoRaiz from './src/navegacao/NavegacaoRaiz';
 
-// A splash nativa fica até dados, tema e fontes carregarem
-// (NavegacaoRaiz a esconde).
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {

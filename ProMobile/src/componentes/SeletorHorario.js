@@ -28,8 +28,6 @@ function dataDoHorario(horario) {
   return data;
 }
 
-// Linha "Horário" que abre o seletor nativo: diálogo no Android,
-// roda (spinner) logo abaixo no iOS. `valor` é 'HH:MM' ou null.
 export default function SeletorHorario({
   rotulo = 'Horário',
   valor,

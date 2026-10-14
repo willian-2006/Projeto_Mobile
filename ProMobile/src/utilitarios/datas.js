@@ -1,6 +1,3 @@
-// Os dias são guardados como texto 'AAAA-MM-DD' no horário local
-// do aparelho: comparar e ordenar vira comparação de texto.
-
 function doisDigitos(numero) {
   return String(numero).padStart(2, '0');
 }
@@ -11,7 +8,6 @@ export function chaveDia(data = new Date()) {
   )}`;
 }
 
-// Meio-dia evita erros perto da meia-noite em mudanças de horário de verão.
 export function dataDaChave(chave) {
   const [ano, mes, dia] = chave.split('-').map(Number);
 
@@ -26,7 +22,6 @@ export function adicionarDias(chave, dias) {
   return chaveDia(data);
 }
 
-// 0 = domingo ... 6 = sábado (igual a Date#getDay).
 export function diaDaSemana(chave) {
   return dataDaChave(chave).getDay();
 }
@@ -50,7 +45,6 @@ export const NOMES_MESES = [
   'Dezembro',
 ];
 
-// Horário no formato 'HH:MM'.
 export function horarioValido(horario) {
   if (typeof horario !== 'string' || !/^\d{2}:\d{2}$/.test(horario)) {
     return false;
@@ -65,7 +59,6 @@ export function horarioDaData(data) {
   return `${doisDigitos(data.getHours())}:${doisDigitos(data.getMinutes())}`;
 }
 
-// Data (objeto Date) do dia `chave` no horário 'HH:MM'.
 export function dataComHorario(chave, horario) {
   const [ano, mes, dia] = chave.split('-').map(Number);
 
@@ -74,7 +67,6 @@ export function dataComHorario(chave, horario) {
   return new Date(ano, mes - 1, dia, horas, minutos);
 }
 
-// Milissegundos até a próxima meia-noite (mínimo de 1 segundo).
 export function msAteMeiaNoite(agora = new Date()) {
   const meiaNoite = new Date(
     agora.getFullYear(),

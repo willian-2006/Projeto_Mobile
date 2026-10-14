@@ -5,8 +5,6 @@ import {
   ReduceMotion,
 } from 'react-native-reanimated';
 
-// Todas as animações respeitam "reduzir movimento" do sistema:
-// com ele ativo, viram transições instantâneas.
 export const transicao = {
   duration: 600,
   easing: Easing.out(Easing.cubic),
@@ -25,7 +23,6 @@ export const mola = {
   reduceMotion: ReduceMotion.System,
 };
 
-// Entrada em cascata das listas (atraso limitado para listas longas).
 export function entradaCascata(indice = 0) {
   return FadeInDown.delay(Math.min(indice, 8) * 50)
     .duration(350)

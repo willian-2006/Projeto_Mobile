@@ -6,7 +6,7 @@ import {
   tarefaDoDia,
 } from '../tarefas';
 
-const HOJE = '2026-10-14'; // quarta-feira
+const HOJE = '2026-10-14';
 
 describe('normalizarTarefa', () => {
   it('completa os campos que faltam', () => {
@@ -118,7 +118,6 @@ describe('moverTarefa', () => {
   });
 
   it('funciona com ids de uma lista filtrada', () => {
-    // Lista filtrada: a, c, d. Arrastar "a" para o lugar de "d".
     expect(ids(moverTarefa(tarefas, 'a', 'd'))).toEqual(['b', 'c', 'd', 'a']);
   });
 

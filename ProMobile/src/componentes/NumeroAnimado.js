@@ -8,9 +8,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 
 import { transicao } from '../estilos/movimento';
 
-// Número que conta do valor anterior (0 na primeira exibição) até o
-// novo valor. Com "reduzir movimento" ativo, troca direto.
-export default function NumeroAnimado({ valor, sufixo = '', style }) {
+export default function NumeroAnimado({ valor, sufixo = '', style, ...resto }) {
   const reduzirMovimento = useReducedMotion();
 
   const [exibido, setExibido] = useState(reduzirMovimento ? valor : 0);
@@ -54,6 +52,7 @@ export default function NumeroAnimado({ valor, sufixo = '', style }) {
       style={style}
       maxFontSizeMultiplier={ESCALA_MAXIMA_FONTE}
       accessibilityLabel={`${valor}${sufixo}`}
+      {...resto}
     >
       {exibido}
       {sufixo}

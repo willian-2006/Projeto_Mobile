@@ -1,7 +1,5 @@
 import * as Haptics from 'expo-haptics';
 
-// Feedback tátil. Falhas (ex.: aparelho sem motor de vibração)
-// são ignoradas: a vibração nunca deve travar uma ação.
 function executar(acao) {
   acao().catch(() => {});
 }

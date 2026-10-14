@@ -18,8 +18,6 @@ import { montarTema } from '../estilos/tema';
 
 const TemaContexto = createContext(null);
 
-// Preferência 'sistema' segue o aparelho; sem informação do
-// sistema, o padrão é o tema escuro.
 export function resolverEsquema(preferencia, esquemaSistema) {
   if (preferencia === 'escuro' || preferencia === 'claro') {
     return preferencia;
@@ -79,8 +77,6 @@ export function useTema() {
   return contexto;
 }
 
-// Recria os estilos do componente só quando o tema muda.
-// `criarEstilos` deve ser declarado fora do componente.
 export function useEstilos(criarEstilos) {
   const { tema } = useTema();
 

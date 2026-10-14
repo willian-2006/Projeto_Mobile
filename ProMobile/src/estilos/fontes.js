@@ -10,8 +10,6 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 
-// Arquivos passados ao useFonts. Os nomes batem com `fontes`
-// em tipografia.js.
 export const arquivosFontes = {
   SpaceGrotesk_600SemiBold,
   SpaceGrotesk_700Bold,

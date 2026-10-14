@@ -16,8 +16,6 @@ const DURACAO_PADRAO = 5000;
 
 const AvisoContexto = createContext(null);
 
-// Aviso temporário (toast) com uma ação opcional, como "Desfazer".
-// Um aviso novo substitui o anterior.
 export function AvisoProvider({ children }) {
   const [aviso, setAviso] = useState(null);
 

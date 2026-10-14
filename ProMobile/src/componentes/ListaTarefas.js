@@ -14,11 +14,8 @@ import { useTarefas } from '../contexto/TarefasContexto';
 
 import { vibrarSelecao } from '../servicos/vibracao';
 
-// Tempo da entrada em cascata; depois disso, itens que voltam à tela
-// ao rolar (a FlatList os remonta) aparecem sem animação.
 const DURACAO_ENTRADA = 1000;
 
-// Só pode ser renderizado dentro da ReorderableList (usa o contexto dela).
 function ItemReordenavel(propriedades) {
   const arrastar = useReorderableDrag();
 
@@ -34,9 +31,6 @@ function extrairChave(tarefa) {
   return tarefa.id;
 }
 
-// Lista de tarefas com o cabeçalho da tela em `ListHeaderComponent`.
-// Com `reordenavel`, segurar e arrastar muda a ordem (a ordem vale
-// para a lista completa, mesmo quando `tarefas` está filtrada).
 export default function ListaTarefas({ tarefas, reordenavel, ...resto }) {
   const navigation = useNavigation();
 

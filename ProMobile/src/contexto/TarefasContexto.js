@@ -50,7 +50,6 @@ export function TarefasProvider({ children }) {
 
   const [carregando, setCarregando] = useState(true);
 
-  // Leitura do estado atual dentro de callbacks estáveis.
   const dadosAtuais = useRef(dados);
 
   useEffect(() => {
@@ -72,17 +71,12 @@ export function TarefasProvider({ children }) {
     };
   }, []);
 
-  // Fecha o dia anterior ao abrir o app, à meia-noite e ao voltar
-  // do segundo plano (se a data mudou). Espera as preferências
-  // para registrar o dia com a meta certa.
   useEffect(() => {
     if (!carregando && !carregandoPreferencias) {
       despachar({ tipo: ACOES.virarDia, hoje, meta: preferencias.meta });
     }
   }, [hoje, carregando, carregandoPreferencias, preferencias.meta]);
 
-  // Só salva depois do primeiro carregamento, para não
-  // sobrescrever os dados salvos com a lista vazia inicial.
   useEffect(() => {
     if (!carregando) {
       salvarDados(dados);
@@ -106,7 +100,6 @@ export function TarefasProvider({ children }) {
     despachar({ tipo: ACOES.alternar, id });
   }, []);
 
-  // Exclui e mostra "Desfazer", que devolve a tarefa à mesma posição.
   const aoExcluir = useCallback(
     id => {
       const indice = dadosAtuais.current.tarefas.findIndex(
@@ -153,7 +146,6 @@ export function TarefasProvider({ children }) {
     despachar({ tipo: ACOES.reordenar, idOrigem, idDestino });
   }, []);
 
-  // Volta às tarefas de exemplo e apaga o histórico.
   const aoRedefinirTarefas = useCallback(() => {
     despachar({
       tipo: ACOES.restaurar,
@@ -211,7 +203,6 @@ export function useTarefas() {
   return contexto;
 }
 
-// Totais de hoje (só tarefas do dia) comparados com a meta diária.
 export function useEstatisticas() {
   const { tarefasDeHoje } = useTarefas();
 

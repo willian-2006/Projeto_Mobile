@@ -2,14 +2,12 @@ import React from 'react';
 
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import Icone from './Icone';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { vibrarSelecao } from '../servicos/vibracao';
 
-// Opção selecionável (pílula). `cor`/`corSuave` mudam o destaque
-// quando ativa (ex.: cores da categoria); o padrão é a cor principal.
 export default function Chip({
   titulo,
   ativo,
@@ -46,8 +44,8 @@ export default function Chip({
       accessibilityLabel={rotuloAcessivel || titulo}
     >
       {icone ? (
-        <Ionicons
-          name={icone}
+        <Icone
+          nome={icone}
           size={15}
           color={ativo ? corAtiva : tema.cores.textoSecundario}
           style={titulo ? estilos.icone : null}

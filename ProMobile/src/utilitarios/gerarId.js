@@ -1,7 +1,5 @@
 let contador = 0;
 
-// Combina horário, contador e trecho aleatório: dois ids
-// gerados no mesmo milissegundo nunca se repetem.
 export function gerarId() {
   contador = (contador + 1) % 1679616;
 

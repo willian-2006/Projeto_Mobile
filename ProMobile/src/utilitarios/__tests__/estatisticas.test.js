@@ -78,7 +78,6 @@ describe('calendarioDoMes', () => {
   it('tem todos os dias do mês e o deslocamento do dia 1', () => {
     expect(calendario.titulo).toBe('Outubro de 2026');
     expect(calendario.dias).toHaveLength(31);
-    // 1º de outubro de 2026 é uma quinta-feira.
     expect(calendario.vazios).toBe(4);
   });
 

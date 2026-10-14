@@ -24,8 +24,6 @@ export function dadosIniciais(hoje = chaveDia()) {
   };
 }
 
-// Versão 0 (antes do esquema): lista solta de tarefas, com
-// `categoria` pelo título ('Saúde') e ids numéricos.
 function migrarDeV0(dados) {
   const lista = Array.isArray(dados) ? dados : dados.tarefas || [];
 
@@ -45,8 +43,6 @@ function migrarDeV0(dados) {
   return { versao: 1, tarefas };
 }
 
-// Versão 1: { versao, tarefas } sem prioridade, horário, recorrência
-// nem histórico. As tarefas existentes viram diárias.
 function migrarDeV1(dados, hoje) {
   return {
     versao: 2,
@@ -58,8 +54,6 @@ function migrarDeV1(dados, hoje) {
   };
 }
 
-// Recebe o que estava salvo (já convertido de JSON) e devolve os
-// dados no formato da versão atual: { tarefas, historico, ultimoDia }.
 export function migrarDados(dados, hoje = chaveDia()) {
   let atual = dados;
 
@@ -168,7 +162,6 @@ export async function salvarPreferenciaTema(preferencia) {
   }
 }
 
-// Apaga tarefas, histórico e preferências (o tema é mantido).
 export async function limparDados() {
   try {
     await AsyncStorage.multiRemove([CHAVE_ARMAZENAMENTO, CHAVE_PREFERENCIAS]);
@@ -177,11 +170,10 @@ export async function limparDados() {
   }
 }
 
-// Tudo o que o app guarda, em JSON legível, para exportar.
 export function montarExportacao(dados, preferencias) {
   return JSON.stringify(
     {
-      app: 'ProMobile',
+      app: 'WillFlow',
       versao: VERSAO_ATUAL,
       exportadoEm: new Date().toISOString(),
       preferencias,

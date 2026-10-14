@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { Ionicons } from '@expo/vector-icons';
+import Icone from './Icone';
 
 import { useTema } from '../contexto/TemaContexto';
 
@@ -31,8 +31,8 @@ export default function IconeGradiente({
         },
       ]}
     >
-      <Ionicons
-        name={icone}
+      <Icone
+        nome={icone}
         size={tamanhoIcone}
         color={tema.cores.textoSobreDestaque}
       />

@@ -1,7 +1,5 @@
 import { CATEGORIAS } from '../dados/categorias';
 
-// Percorre a lista uma única vez e devolve os totais gerais
-// e o resumo de cada categoria.
 export function calcularEstatisticas(tarefas) {
   const porCategoria = {};
 
@@ -48,7 +46,6 @@ export function calcularEstatisticas(tarefas) {
   };
 }
 
-// Sem pontos possíveis (lista vazia), o progresso é 0%.
 export function calcularPorcentagem(pontosAtuais, pontosMaximos) {
   if (pontosMaximos <= 0) {
     return 0;

@@ -1,6 +1,3 @@
-// Space Grotesk em títulos e números, Inter no corpo do texto.
-// Com fonte personalizada não se usa `fontWeight`: o peso vem da
-// própria família (ex.: Inter_600SemiBold).
 export const fontes = {
   titulo: 'SpaceGrotesk_700Bold',
   tituloMedio: 'SpaceGrotesk_600SemiBold',
@@ -55,7 +52,6 @@ export const tipografia = {
     fontSize: 10,
   },
 
-  // Números alinhados (pontos e porcentagens não "pulam" ao mudar).
   numeros: {
     fontFamily: fontes.numero,
     fontVariant: ['tabular-nums'],

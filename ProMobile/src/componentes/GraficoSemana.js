@@ -14,11 +14,8 @@ import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 const ALTURA = 132;
 
-// Espaço acima das barras para o valor.
 const TOPO = 18;
 
-// Barras com os pontos de cada dia e uma linha tracejada na meta.
-// Dias que bateram a meta ficam com a cor cheia.
 export default function GraficoSemana({ dias, meta }) {
   const { tema } = useTema();
 

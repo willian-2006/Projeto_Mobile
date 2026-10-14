@@ -30,8 +30,6 @@ import { TAMANHO_MAXIMO_TITULO } from '../dados/opcoesTarefa';
 
 import { brilho } from '../estilos/sombras';
 
-// Ignora um segundo envio logo após o primeiro
-// (onSubmitEditing + toque no botão).
 const INTERVALO_MINIMO_ENVIO = 500;
 
 export default function TelaCategoria({ route, navigation }) {
@@ -87,7 +85,6 @@ export default function TelaCategoria({ route, navigation }) {
     setNovaTarefa('');
   }
 
-  // Abre o editor completo já com o texto digitado.
   function abrirEditor() {
     navigation.navigate('EditorTarefa', {
       categoria: categoria.chave,

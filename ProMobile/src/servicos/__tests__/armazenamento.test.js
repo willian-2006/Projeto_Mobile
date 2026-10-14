@@ -252,7 +252,7 @@ describe('montarExportacao', () => {
   it('gera um JSON com preferências, tarefas e histórico', () => {
     const exportado = JSON.parse(montarExportacao(dados, PREFERENCIAS_PADRAO));
 
-    expect(exportado.app).toBe('ProMobile');
+    expect(exportado.app).toBe('WillFlow');
     expect(exportado.versao).toBe(VERSAO_ATUAL);
     expect(exportado.tarefas).toEqual(dados.tarefas);
     expect(exportado.historico).toEqual(dados.historico);

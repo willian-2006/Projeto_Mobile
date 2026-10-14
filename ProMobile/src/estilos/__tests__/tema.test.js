@@ -4,7 +4,6 @@ import { CATEGORIAS } from '../../dados/categorias';
 
 import { comporCor, razaoContraste } from '../../utilitarios/contraste';
 
-// WCAG AA: 4.5:1 para texto normal; 3:1 para texto grande e ícones.
 const AA_TEXTO = 4.5;
 const AA_GRANDE = 3;
 
@@ -37,7 +36,6 @@ describe('montarTema', () => {
 describe.each(ESQUEMAS)('contraste AA no tema %s', esquema => {
   const { cores, categorias } = montarTema(esquema);
 
-  // Fundos reais onde aparece texto (o vidro é composto sobre o fundo).
   const fundos = {
     fundo: cores.fundo,
     superficie: cores.superficie,
@@ -83,9 +81,6 @@ describe.each(ESQUEMAS)('contraste AA no tema %s', esquema => {
     );
   });
 
-  // Chips ativos, botões de ação do cabeçalho, seletor de meta e de
-  // horário: texto colorido sobre o fundo esmaecido, direto sobre o
-  // fundo da tela ou sobre um cartão.
   const basesEsmaecidas = {
     fundo: cores.fundo,
     superficie: cores.superficie,

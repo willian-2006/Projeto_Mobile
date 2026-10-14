@@ -33,13 +33,8 @@ import { vibrarConclusao, vibrarExclusao } from '../servicos/vibracao';
 
 import { descreverRecorrencia } from '../utilitarios/tarefas';
 
-// Distância que o item precisa deslizar para ser excluído.
 const LIMITE_DESLIZE = 96;
 
-// Toque no círculo conclui; toque no texto abre o editor; segurar
-// (quando `aoSegurar` é passado) arrasta para reordenar; deslizar
-// para a esquerda exclui. A entrada em cascata só roda quando a lista
-// aparece (`animarEntrada`), não ao rolar de volta até o item.
 function ItemTarefa({
   tarefa,
   indice,
@@ -76,7 +71,6 @@ function ItemTarefa({
 
   function alternar() {
     if (!tarefa.concluida) {
-      // Pulso de escala ao concluir.
       escala.set(
         withSequence(withTiming(1.25, transicaoRapida), withSpring(1, mola))
       );

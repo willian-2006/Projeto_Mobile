@@ -6,7 +6,6 @@ import {
   montarAgenda,
 } from '../agendaLembretes';
 
-// Quarta-feira, 14/10/2026, às 10h.
 const AGORA = new Date(2026, 9, 14, 10, 0);
 
 const preferencias = {
@@ -83,7 +82,6 @@ describe('montarAgenda', () => {
   });
 
   it('respeita os dias da semana', () => {
-    // Só às sextas (dia 5): 16/10.
     const agenda = montarAgenda(
       [tarefa('a', { recorrencia: { tipo: 'semanal', dias: [5] } })],
       preferencias,

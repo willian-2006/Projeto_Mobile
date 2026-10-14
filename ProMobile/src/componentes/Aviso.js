@@ -14,7 +14,6 @@ import { useEstilos } from '../contexto/TemaContexto';
 
 import { brilho } from '../estilos/sombras';
 
-// Fica acima da barra de abas flutuante.
 const DISTANCIA_BARRA = 96;
 
 const entrada = FadeInDown.duration(250).reduceMotion(ReduceMotion.System);

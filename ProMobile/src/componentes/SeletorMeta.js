@@ -14,7 +14,6 @@ import { vibrarSelecao } from '../servicos/vibracao';
 
 import { limitarMeta } from '../utilitarios/preferencias';
 
-// Meta diária em pontos, de 10 em 10, com botões − e +.
 export default function SeletorMeta({ valor, aoMudar }) {
   const { tema } = useTema();
 

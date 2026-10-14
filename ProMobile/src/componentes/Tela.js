@@ -8,8 +8,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-// Base de todas as telas: área segura, cor de fundo do tema e
-// dois brilhos suaves de decoração (dão profundidade ao vidro).
 export default function Tela({ children, edges }) {
   const { tema } = useTema();
 

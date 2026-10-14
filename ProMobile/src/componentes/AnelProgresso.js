@@ -5,6 +5,7 @@ import { View, StyleSheet } from 'react-native';
 import Svg, {
   Circle,
   Defs,
+  G,
   LinearGradient as GradienteSvg,
   Stop,
 } from 'react-native-svg';
@@ -32,7 +33,6 @@ export default function AnelProgresso({
 
   const cores = gradiente || tema.cores.gradientePrincipal;
 
-  // useId gera ":r0:"; os dois-pontos atrapalham o url(#id) do SVG.
   const idGradiente = `anel${useId().replace(/:/g, '')}`;
 
   const raioCirculo = (tamanho - espessura) / 2;
@@ -47,7 +47,6 @@ export default function AnelProgresso({
 
   const propriedadesAnimadas = useAnimatedProps(() => ({
     strokeDashoffset: circunferencia * (1 - progresso.value),
-    // Sem progresso, esconde o "ponto" da ponta arredondada.
     strokeOpacity: progresso.value > 0.005 ? 1 : 0,
   }));
 
@@ -57,7 +56,7 @@ export default function AnelProgresso({
       accessibilityRole="progressbar"
       accessibilityValue={{ min: 0, max: 100, now: porcentagem }}
     >
-      <Svg width={tamanho} height={tamanho} style={estilos.girado}>
+      <Svg width={tamanho} height={tamanho}>
         <Defs>
           <GradienteSvg id={idGradiente} x1="0" y1="0" x2="1" y2="1">
             <Stop offset="0" stopColor={cores[0]} />
@@ -65,40 +64,44 @@ export default function AnelProgresso({
           </GradienteSvg>
         </Defs>
 
-        <Circle
-          cx={tamanho / 2}
-          cy={tamanho / 2}
-          r={raioCirculo}
-          stroke={tema.cores.superficieElevada}
-          strokeWidth={espessura}
-          fill="none"
-        />
+        <G rotation={-90} origin={`${tamanho / 2}, ${tamanho / 2}`}>
+          <Circle
+            cx={tamanho / 2}
+            cy={tamanho / 2}
+            r={raioCirculo}
+            stroke={tema.cores.superficieElevada}
+            strokeWidth={espessura}
+            fill="none"
+          />
 
-        <CirculoAnimado
-          cx={tamanho / 2}
-          cy={tamanho / 2}
-          r={raioCirculo}
-          stroke={`url(#${idGradiente})`}
-          strokeWidth={espessura}
-          strokeLinecap="round"
-          strokeDasharray={`${circunferencia} ${circunferencia}`}
-          fill="none"
-          animatedProps={propriedadesAnimadas}
-        />
+          <CirculoAnimado
+            cx={tamanho / 2}
+            cy={tamanho / 2}
+            r={raioCirculo}
+            stroke={`url(#${idGradiente})`}
+            strokeWidth={espessura}
+            strokeLinecap="round"
+            strokeDasharray={`${circunferencia} ${circunferencia}`}
+            fill="none"
+            animatedProps={propriedadesAnimadas}
+          />
+        </G>
       </Svg>
 
-      <View style={estilos.centro}>{children}</View>
+      <View style={estilos.centro} pointerEvents="none">
+        {children}
+      </View>
     </View>
   );
 }
 
 const estilos = StyleSheet.create({
-  girado: {
-    transform: [{ rotate: '-90deg' }],
-  },
-
   centro: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     justifyContent: 'center',
     alignItems: 'center',
   },

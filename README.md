@@ -1,4 +1,4 @@
-# ProMobile
+# WillFlow
 
 Aplicativo de **rotina diária gamificada** feito com React Native e Expo. Cada tarefa pertence a uma categoria (Saúde, Estudos, Trabalho ou Devocional) e vale pontos. Ao concluir tarefas você avança na meta diária, mantém uma sequência de dias e acompanha a evolução em gráficos.
 
@@ -32,7 +32,7 @@ npx expo start
 
 Depois, leia o QR code com o Expo Go (no Android) ou com a câmera (no iPhone). O celular e o computador precisam estar na mesma rede Wi-Fi.
 
-> O app fica na pasta `ProMobile/`. Rode todos os comandos de dentro dela.
+> O código do app fica na pasta `ProMobile/` (o nome da pasta é anterior ao nome WillFlow). Rode todos os comandos de dentro dela.
 
 ### Problemas comuns
 

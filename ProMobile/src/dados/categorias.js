@@ -1,6 +1,3 @@
-// A `chave` (sem acento) é o que fica salvo em cada tarefa;
-// o `titulo` serve só para exibição. As cores de cada categoria
-// dependem do tema: veja `categorias` em src/estilos/cores.js.
 export const CATEGORIAS = [
   {
     chave: 'saude',
@@ -33,8 +30,8 @@ export const CATEGORIAS = [
     chave: 'devocional',
     titulo: 'Devocional',
     subtitulo: 'Cuide da sua vida espiritual',
-    icone: 'heart-circle',
-    iconeVazio: 'heart-circle-outline',
+    icone: 'mci:hands-pray',
+    iconeVazio: 'mci:hands-pray',
     textoVazio: 'Nenhuma tarefa devocional',
   },
 ];

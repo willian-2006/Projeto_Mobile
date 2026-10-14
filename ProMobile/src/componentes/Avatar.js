@@ -8,12 +8,10 @@ import { useTema } from '../contexto/TemaContexto';
 
 import { inicialDoNome } from '../utilitarios/preferencias';
 
-// Gradiente de uma das `CORES_AVATAR` ('principal' ou uma categoria).
 export function gradienteAvatar(tema, cor) {
   return tema.categorias[cor]?.gradiente || tema.cores.gradientePrincipal;
 }
 
-// Inicial do nome sobre o gradiente escolhido no Perfil.
 export default function Avatar({ nome, cor, tamanho = 44 }) {
   const { tema } = useTema();
 

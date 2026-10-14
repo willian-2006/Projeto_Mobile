@@ -18,8 +18,6 @@ import { normalizarPreferencias } from '../utilitarios/preferencias';
 
 const PreferenciasContexto = createContext(null);
 
-// Perfil e configurações: nome, avatar, meta diária, categorias
-// favoritas, lembretes e se o onboarding já foi feito.
 export function PreferenciasProvider({ children }) {
   const [preferencias, setPreferencias] = useState(PREFERENCIAS_PADRAO);
 

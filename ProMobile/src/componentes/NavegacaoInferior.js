@@ -51,8 +51,6 @@ const itens = {
 
 const RECUO_INDICADOR = 4;
 
-// Barra flutuante usada pelo bottom-tabs (prop `tabBar`). O
-// indicador desliza até a aba ativa.
 export default function NavegacaoInferior({ state, navigation, insets }) {
   const { tema } = useTema();
 

@@ -1,6 +1,3 @@
-// Valores aceitos nos campos de uma tarefa. O que fica salvo é a
-// `chave`; o `titulo` é só para exibição.
-
 export const OPCOES_PONTOS = [5, 10, 20, 30];
 
 export const PONTOS_PADRAO = 10;

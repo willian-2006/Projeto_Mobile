@@ -14,7 +14,6 @@ const tarefas = [
   diaria('b', 20, false, 'estudos'),
   {
     ...diaria('c', 30, true, 'trabalho'),
-    // Só às quintas: não conta numa quarta (2026-10-14).
     recorrencia: { tipo: 'semanal', dias: [4] },
   },
   { ...diaria('d', 5, true), recorrencia: { tipo: 'unica', dias: [] } },

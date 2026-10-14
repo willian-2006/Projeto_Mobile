@@ -1,10 +1,3 @@
-// Ponto central de cores do app. Componentes nunca usam hex solto:
-// pegam as cores do tema atual (useTema / useEstilos).
-//
-// `textoTerciario` não atinge contraste AA para texto pequeno no
-// tema escuro: use só em ícones, divisores e textos grandes.
-// `textoSobreDestaque` é a cor de ícones e letras sobre gradientes.
-
 const gradientes = {
   principal: ['#22D3EE', '#8B5CF6'],
   saude: ['#34D399', '#10B981'],

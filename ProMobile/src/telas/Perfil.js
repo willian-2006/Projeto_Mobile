@@ -69,12 +69,10 @@ export default function Perfil({ navigation }) {
 
   const sequencia = useSequencia();
 
-  // O nome é salvo ao sair do campo, não a cada letra.
   const [nome, setNome] = useState(preferencias.nome);
 
   const [nomeSalvo, setNomeSalvo] = useState(preferencias.nome);
 
-  // Se o nome mudar fora daqui (ex.: dados limpos), atualiza o campo.
   if (preferencias.nome !== nomeSalvo) {
     setNomeSalvo(preferencias.nome);
     setNome(preferencias.nome);
@@ -89,7 +87,7 @@ export default function Perfil({ navigation }) {
   async function exportar() {
     try {
       await Share.share({
-        title: 'Dados do ProMobile',
+        title: 'Dados do WillFlow',
         message: montarExportacao({ tarefas, historico }, preferencias),
       });
     } catch (erro) {

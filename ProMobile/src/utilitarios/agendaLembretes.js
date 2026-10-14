@@ -6,13 +6,8 @@ import { filtrarTarefasDoDia } from './tarefas';
 
 import { contar } from './textos';
 
-// Agenda notificações com data exata para os próximos dias (em vez
-// de repetições do sistema) para poder pular a tarefa já concluída
-// hoje e o resumo de um dia com a meta batida. Ela é refeita a cada
-// mudança e ao abrir o app.
 export const DIAS_AGENDADOS = 7;
 
-// O iOS guarda no máximo 64 notificações agendadas por app.
 export const LIMITE_NOTIFICACOES = 60;
 
 function resumoDoDia(tarefasDoDia, meta, ehHoje) {
@@ -43,7 +38,6 @@ function resumoDoDia(tarefasDoDia, meta, ehHoje) {
   return `${falta} para a meta. ${contar(pendentes, 'tarefa')} por fazer.`;
 }
 
-// Lista de { id, titulo, corpo, data } a agendar, em ordem de data.
 export function montarAgenda(tarefas, preferencias, agora = new Date()) {
   if (!preferencias.lembretesAtivos) {
     return [];
@@ -61,7 +55,6 @@ export function montarAgenda(tarefas, preferencias, agora = new Date()) {
     const tarefasDoDia = filtrarTarefasDoDia(tarefas, dia);
 
     tarefasDoDia.forEach(tarefa => {
-      // `concluida` só vale para hoje; nos outros dias ela reabre.
       if (!tarefa.lembrete || !tarefa.horario || (ehHoje && tarefa.concluida)) {
         return;
       }

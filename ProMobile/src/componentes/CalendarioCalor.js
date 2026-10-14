@@ -10,7 +10,6 @@ const COLUNAS = 7;
 
 const ESPACO = 6;
 
-// Opacidade da cor principal conforme a % da meta do dia.
 function intensidade(porcentagem) {
   if (porcentagem === null || porcentagem === 0) {
     return 0;
@@ -33,13 +32,11 @@ function intensidade(porcentagem) {
 
 const NIVEIS_LEGENDA = [0, 0.22, 0.45, 0.7, 1];
 
-// Heatmap do mês: cada dia é colorido pela % da meta alcançada.
 export default function CalendarioCalor({ calendario }) {
   const estilos = useEstilos(criarEstilos);
 
   const [largura, setLargura] = useState(0);
 
-  // Arredonda para baixo para a 7ª coluna não quebrar de linha.
   const lado = Math.floor((largura - ESPACO * (COLUNAS - 1)) / COLUNAS);
 
   const casas = [

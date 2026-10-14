@@ -6,10 +6,6 @@ import { BlurView } from 'expo-blur';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-// Cartão com efeito vidro. O blur real só é usado no iOS; no
-// Android (onde é experimental e pesado) fica a superfície
-// translúcida com a mesma borda. `vidro={false}` dá um cartão sólido,
-// mais leve para itens de lista.
 export default function Cartao({ children, style, vidro = true, ...resto }) {
   const { tema } = useTema();
 

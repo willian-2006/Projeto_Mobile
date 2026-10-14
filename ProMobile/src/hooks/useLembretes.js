@@ -8,13 +8,8 @@ import { agendarLembretes, cancelarLembretes } from '../servicos/notificacoes';
 
 import { montarAgenda } from '../utilitarios/agendaLembretes';
 
-// Espera as mudanças pararem (ex.: várias tarefas marcadas seguidas)
-// antes de refazer a agenda.
 const ESPERA = 800;
 
-// Mantém as notificações agendadas de acordo com as tarefas e as
-// preferências. Com os lembretes desligados desde a abertura, o
-// módulo de notificações nem é carregado.
 export function useLembretes() {
   const { tarefas, hoje, carregando } = useTarefas();
 

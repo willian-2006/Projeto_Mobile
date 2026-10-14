@@ -1,5 +1,3 @@
-// Cálculo de contraste segundo a WCAG 2.x.
-
 function lerCor(cor) {
   const texto = cor.trim();
 
@@ -32,7 +30,6 @@ function lerCor(cor) {
   return { r, g, b, a };
 }
 
-// Cor semitransparente aplicada sobre um fundo opaco.
 export function comporCor(cor, fundo) {
   const frente = lerCor(cor);
   const atras = lerCor(fundo);

@@ -14,9 +14,6 @@ import Tela from './Tela';
 
 import { useEstilos } from '../contexto/TemaContexto';
 
-// Skeleton com o formato da tela inicial, pulsando enquanto os
-// dados e as fontes carregam. Não usa texto (as fontes ainda não
-// estão prontas).
 export default function Carregando() {
   const estilos = useEstilos(criarEstilos);
 

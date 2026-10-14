@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-// `acao` (opcional): botão de ícone à direita, { icone, rotulo, aoPressionar }.
 export default function CabecalhoTela({ titulo, subtitulo, aoVoltar, acao }) {
   const { tema } = useTema();
 

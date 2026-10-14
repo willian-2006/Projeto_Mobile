@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,15 +12,24 @@ import NumeroAnimado from './NumeroAnimado';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
+import { ESCALA_MAXIMA_FONTE } from '../estilos/espacamentos';
+
 import { brilho } from '../estilos/sombras';
 
 import { calcularPorcentagem } from '../utilitarios/pontuacao';
 
-// Progresso de hoje em relação à meta diária (configurável no Perfil).
+const LARGURA_TELA_PEQUENA = 360;
+
 export default function CartaoProgresso({ pontosAtuais, meta }) {
   const { tema } = useTema();
 
   const estilos = useEstilos(criarEstilos);
+
+  const telaPequena = useWindowDimensions().width < LARGURA_TELA_PEQUENA;
+
+  const tamanhoAnel = telaPequena ? 96 : 112;
+
+  const tamanhoPorcentagem = Math.round(tamanhoAnel * 0.21);
 
   const porcentagem = calcularPorcentagem(pontosAtuais, meta);
 
@@ -30,12 +39,18 @@ export default function CartaoProgresso({ pontosAtuais, meta }) {
 
   return (
     <View style={estilos.sombra}>
-      <Cartao style={estilos.cartao}>
-        <View style={estilos.textos}>
+      <Cartao style={[estilos.cartao, telaPequena && estilos.cartaoCompacto]}>
+        <View style={[estilos.textos, telaPequena && estilos.textosCompacto]}>
           <Text style={estilos.titulo}>Sua meta de hoje</Text>
 
           <View style={estilos.linhaPontos}>
-            <NumeroAnimado valor={pontosAtuais} style={estilos.pontosAtuais} />
+            <NumeroAnimado
+              valor={pontosAtuais}
+              style={[
+                estilos.pontosAtuais,
+                telaPequena && estilos.pontosAtuaisCompacto,
+              ]}
+            />
 
             <Text style={estilos.textoMeta}>
               {' / '}
@@ -62,14 +77,31 @@ export default function CartaoProgresso({ pontosAtuais, meta }) {
           )}
         </View>
 
-        <AnelProgresso porcentagem={porcentagem}>
+        <AnelProgresso
+          porcentagem={porcentagem}
+          tamanho={tamanhoAnel}
+          espessura={telaPequena ? 10 : 12}
+        >
           <NumeroAnimado
             valor={porcentagem}
             sufixo="%"
-            style={estilos.porcentagem}
+            numberOfLines={1}
+            style={[
+              estilos.porcentagem,
+              {
+                fontSize: tamanhoPorcentagem,
+                lineHeight: Math.round(tamanhoPorcentagem * 1.15),
+              },
+            ]}
           />
 
-          <Text style={estilos.rotuloAnel}>concluído</Text>
+          <Text
+            style={estilos.rotuloAnel}
+            numberOfLines={1}
+            maxFontSizeMultiplier={ESCALA_MAXIMA_FONTE}
+          >
+            concluído
+          </Text>
         </AnelProgresso>
       </Cartao>
     </View>
@@ -95,9 +127,18 @@ const criarEstilos = tema =>
       alignItems: 'center',
     },
 
+    cartaoCompacto: {
+      padding: tema.espaco.lg,
+    },
+
     textos: {
       flex: 1,
+      flexShrink: 1,
       marginRight: tema.espaco.lg,
+    },
+
+    textosCompacto: {
+      marginRight: tema.espaco.md,
     },
 
     titulo: {
@@ -115,6 +156,10 @@ const criarEstilos = tema =>
       ...tema.tipografia.numeros,
       fontSize: 36,
       color: tema.cores.texto,
+    },
+
+    pontosAtuaisCompacto: {
+      fontSize: 30,
     },
 
     textoMeta: {
@@ -143,12 +188,16 @@ const criarEstilos = tema =>
 
     porcentagem: {
       ...tema.tipografia.numeros,
-      fontSize: 24,
       color: tema.cores.texto,
+      textAlign: 'center',
+      includeFontPadding: false,
     },
 
     rotuloAnel: {
       ...tema.tipografia.rotulo,
+      lineHeight: 12,
       color: tema.cores.textoSecundario,
+      textAlign: 'center',
+      includeFontPadding: false,
     },
   });
