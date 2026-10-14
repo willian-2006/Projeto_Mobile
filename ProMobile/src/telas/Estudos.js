@@ -42,10 +42,7 @@ export default function Estudos({
 
     const agora = Date.now();
 
-    if (
-      titulo === '' ||
-      agora - ultimoEnvio.current < INTERVALO_MINIMO_ENVIO
-    ) {
+    if (titulo === '' || agora - ultimoEnvio.current < INTERVALO_MINIMO_ENVIO) {
       return;
     }
 
@@ -58,34 +55,20 @@ export default function Estudos({
 
   return (
     <SafeAreaView style={estilos.areaSegura}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor={cores.fundo}
-      />
+      <StatusBar barStyle="dark-content" backgroundColor={cores.fundo} />
 
       <View style={estilos.container}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={
-            estilos.conteudoRolagem
-          }
+          contentContainerStyle={estilos.conteudoRolagem}
         >
           <View style={estilos.cabecalho}>
-            <TouchableOpacity
-              style={estilos.botaoVoltar}
-              onPress={aoVoltar}
-            >
-              <Ionicons
-                name="arrow-back"
-                size={23}
-                color={cores.texto}
-              />
+            <TouchableOpacity style={estilos.botaoVoltar} onPress={aoVoltar}>
+              <Ionicons name="arrow-back" size={23} color={cores.texto} />
             </TouchableOpacity>
 
             <View>
-              <Text style={estilos.titulo}>
-                Estudos
-              </Text>
+              <Text style={estilos.titulo}>Estudos</Text>
 
               <Text style={estilos.subtitulo}>
                 Organize seus estudos e aprendizado
@@ -97,9 +80,7 @@ export default function Estudos({
             <TextInput
               style={estilos.input}
               placeholder="Adicionar tarefa..."
-              placeholderTextColor={
-                cores.textoSecundario
-              }
+              placeholderTextColor={cores.textoSecundario}
               value={novaTarefa}
               onChangeText={setNovaTarefa}
               onSubmitEditing={adicionar}
@@ -110,22 +91,14 @@ export default function Estudos({
               style={estilos.botaoAdicionar}
               onPress={adicionar}
             >
-              <Ionicons
-                name="add"
-                size={25}
-                color={cores.branco}
-              />
+              <Ionicons name="add" size={25} color={cores.branco} />
             </TouchableOpacity>
           </View>
 
           <View style={estilos.cabecalhoTarefas}>
-            <Text style={estilos.tituloSecao}>
-              Minhas tarefas
-            </Text>
+            <Text style={estilos.tituloSecao}>Minhas tarefas</Text>
 
-            <Text style={estilos.contador}>
-              {tarefasEstudos.length}
-            </Text>
+            <Text style={estilos.contador}>{tarefasEstudos.length}</Text>
           </View>
 
           {tarefasEstudos.length === 0 ? (
@@ -136,9 +109,7 @@ export default function Estudos({
                 color={cores.estudosIcone}
               />
 
-              <Text style={estilos.textoVazio}>
-                Nenhuma tarefa de estudos
-              </Text>
+              <Text style={estilos.textoVazio}>Nenhuma tarefa de estudos</Text>
 
               <Text style={estilos.subtextoVazio}>
                 Adicione uma tarefa para começar

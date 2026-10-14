@@ -1,21 +1,12 @@
 import React from 'react';
 
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
 import { cores } from '../estilos/cores';
 
-export default function ItemTarefa({
-  tarefa,
-  aoAlternar,
-  aoExcluir,
-}) {
+export default function ItemTarefa({ tarefa, aoAlternar, aoExcluir }) {
   return (
     <View style={estilos.container}>
       <TouchableOpacity
@@ -26,16 +17,11 @@ export default function ItemTarefa({
         <View
           style={[
             estilos.checkbox,
-            tarefa.concluida &&
-              estilos.checkboxConcluido,
+            tarefa.concluida && estilos.checkboxConcluido,
           ]}
         >
           {tarefa.concluida && (
-            <Ionicons
-              name="checkmark"
-              size={16}
-              color={cores.branco}
-            />
+            <Ionicons name="checkmark" size={16} color={cores.branco} />
           )}
         </View>
 
@@ -43,25 +29,18 @@ export default function ItemTarefa({
           <Text
             style={[
               estilos.titulo,
-              tarefa.concluida &&
-                estilos.tituloConcluido,
+              tarefa.concluida && estilos.tituloConcluido,
             ]}
           >
             {tarefa.titulo}
           </Text>
 
           <View style={estilos.informacoes}>
-            <Text style={estilos.categoria}>
-              {tarefa.categoria}
-            </Text>
+            <Text style={estilos.categoria}>{tarefa.categoria}</Text>
 
-            <Text style={estilos.separador}>
-              •
-            </Text>
+            <Text style={estilos.separador}>•</Text>
 
-            <Text style={estilos.pontos}>
-              +{tarefa.pontos} pontos
-            </Text>
+            <Text style={estilos.pontos}>+{tarefa.pontos} pontos</Text>
           </View>
         </View>
       </TouchableOpacity>

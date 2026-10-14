@@ -1,11 +1,6 @@
 import React from 'react';
 
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -39,12 +34,9 @@ const itens = [
 ];
 
 export default function NavegacaoInferior() {
-
   return (
     <View style={estilos.container}>
-
       {itens.map((item, indice) => {
-
         const ativo = indice === 0;
 
         return (
@@ -53,30 +45,18 @@ export default function NavegacaoInferior() {
             style={estilos.item}
             activeOpacity={0.7}
           >
-
             <Ionicons
               name={item.icone}
               size={22}
-              color={
-                ativo
-                  ? cores.principal
-                  : cores.textoSecundario
-              }
+              color={ativo ? cores.principal : cores.textoSecundario}
             />
 
-            <Text
-              style={[
-                estilos.texto,
-                ativo && estilos.textoAtivo,
-              ]}
-            >
+            <Text style={[estilos.texto, ativo && estilos.textoAtivo]}>
               {item.nome}
             </Text>
-
           </TouchableOpacity>
         );
       })}
-
     </View>
   );
 }

@@ -1,10 +1,6 @@
 import React from 'react';
 
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,57 +8,33 @@ import { cores } from '../estilos/cores';
 
 import { calcularPorcentagem } from '../utilitarios/pontuacao';
 
-export default function CartaoProgresso({
-  pontosAtuais,
-  pontosMaximos,
-}) {
+export default function CartaoProgresso({ pontosAtuais, pontosMaximos }) {
+  const porcentagem = calcularPorcentagem(pontosAtuais, pontosMaximos);
 
-  const porcentagem = calcularPorcentagem(
-    pontosAtuais,
-    pontosMaximos
-  );
-
-  const pontosRestantes = Math.max(
-    pontosMaximos - pontosAtuais,
-    0
-  );
+  const pontosRestantes = Math.max(pontosMaximos - pontosAtuais, 0);
 
   return (
     <View style={estilos.cartao}>
-
       <View style={estilos.topo}>
-
         <View>
-          <Text style={estilos.titulo}>
-            Sua meta de hoje
-          </Text>
+          <Text style={estilos.titulo}>Sua meta de hoje</Text>
 
           <View style={estilos.linhaPontos}>
-
-            <Text style={estilos.pontosAtuais}>
-              {pontosAtuais}
-            </Text>
+            <Text style={estilos.pontosAtuais}>{pontosAtuais}</Text>
 
             <Text style={estilos.pontosMaximos}>
               {' / '}
               {pontosMaximos} pontos
             </Text>
-
           </View>
         </View>
 
         <View style={estilos.icone}>
-          <Ionicons
-            name="trophy-outline"
-            size={24}
-            color={cores.principal}
-          />
+          <Ionicons name="trophy-outline" size={24} color={cores.principal} />
         </View>
-
       </View>
 
       <View style={estilos.fundoBarra}>
-
         <View
           style={[
             estilos.barra,
@@ -71,21 +43,15 @@ export default function CartaoProgresso({
             },
           ]}
         />
-
       </View>
 
       <View style={estilos.rodape}>
-
-        <Text style={estilos.porcentagem}>
-          {porcentagem}% concluído
-        </Text>
+        <Text style={estilos.porcentagem}>{porcentagem}% concluído</Text>
 
         <Text style={estilos.restantes}>
           {pontosRestantes} pontos restantes
         </Text>
-
       </View>
-
     </View>
   );
 }

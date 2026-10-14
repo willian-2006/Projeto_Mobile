@@ -1,11 +1,6 @@
 import React from 'react';
 
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -34,25 +29,16 @@ export default function CartaoCategoria({
           },
         ]}
       >
-        <Ionicons
-          name={icone}
-          size={21}
-          color={corIcone}
-        />
+        <Ionicons name={icone} size={21} color={corIcone} />
       </View>
 
-      <Text style={estilos.titulo}>
-        {titulo}
-      </Text>
+      <Text style={estilos.titulo}>{titulo}</Text>
 
       <Text style={estilos.tarefas}>
-        {tarefas}{' '}
-        {tarefas === 1 ? 'tarefa' : 'tarefas'}
+        {tarefas} {tarefas === 1 ? 'tarefa' : 'tarefas'}
       </Text>
 
-      <Text style={estilos.pontos}>
-        {pontos} pontos
-      </Text>
+      <Text style={estilos.pontos}>{pontos} pontos</Text>
     </TouchableOpacity>
   );
 }

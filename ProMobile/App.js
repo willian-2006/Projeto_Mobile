@@ -1,17 +1,8 @@
 import React, { useState } from 'react';
 
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  StatusBar,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 
-import {
-  SafeAreaProvider,
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import Cabecalho from './src/componentes/Cabecalho';
 
@@ -52,20 +43,15 @@ export default function App() {
 }
 
 function Principal() {
-  const [tarefas, setTarefas] =
-    useState(tarefasIniciais);
+  const [tarefas, setTarefas] = useState(tarefasIniciais);
 
-  const [telaAtual, setTelaAtual] =
-    useState('inicio');
+  const [telaAtual, setTelaAtual] = useState('inicio');
 
-  const pontosMaximos =
-    calcularPontosMaximos(tarefas);
+  const pontosMaximos = calcularPontosMaximos(tarefas);
 
-  const pontosAtuais =
-    calcularPontosAtuais(tarefas);
+  const pontosAtuais = calcularPontosAtuais(tarefas);
 
-  const tarefasConcluidas =
-    contarConcluidas(tarefas);
+  const tarefasConcluidas = contarConcluidas(tarefas);
 
   function alternarTarefa(id) {
     setTarefas(tarefasAtuais => {
@@ -91,17 +77,12 @@ function Principal() {
       concluida: false,
     };
 
-    setTarefas(tarefasAtuais => [
-      ...tarefasAtuais,
-      novaTarefa,
-    ]);
+    setTarefas(tarefasAtuais => [...tarefasAtuais, novaTarefa]);
   }
 
   function excluirTarefa(id) {
     setTarefas(tarefasAtuais => {
-      return tarefasAtuais.filter(
-        tarefa => tarefa.id !== id
-      );
+      return tarefasAtuais.filter(tarefa => tarefa.id !== id);
     });
   }
 
@@ -131,20 +112,10 @@ function Principal() {
     {
       titulo: 'Saúde',
       icone: 'heart',
-      tarefas: tarefas.filter(
-        tarefa =>
-          tarefa.categoria === 'Saúde'
-      ).length,
+      tarefas: tarefas.filter(tarefa => tarefa.categoria === 'Saúde').length,
       pontos: tarefas
-        .filter(
-          tarefa =>
-            tarefa.categoria === 'Saúde'
-        )
-        .reduce(
-          (total, tarefa) =>
-            total + tarefa.pontos,
-          0
-        ),
+        .filter(tarefa => tarefa.categoria === 'Saúde')
+        .reduce((total, tarefa) => total + tarefa.pontos, 0),
       corFundo: cores.saude,
       corIcone: cores.saudeIcone,
     },
@@ -152,20 +123,10 @@ function Principal() {
     {
       titulo: 'Estudos',
       icone: 'book',
-      tarefas: tarefas.filter(
-        tarefa =>
-          tarefa.categoria === 'Estudos'
-      ).length,
+      tarefas: tarefas.filter(tarefa => tarefa.categoria === 'Estudos').length,
       pontos: tarefas
-        .filter(
-          tarefa =>
-            tarefa.categoria === 'Estudos'
-        )
-        .reduce(
-          (total, tarefa) =>
-            total + tarefa.pontos,
-          0
-        ),
+        .filter(tarefa => tarefa.categoria === 'Estudos')
+        .reduce((total, tarefa) => total + tarefa.pontos, 0),
       corFundo: cores.estudos,
       corIcone: cores.estudosIcone,
     },
@@ -173,20 +134,10 @@ function Principal() {
     {
       titulo: 'Trabalho',
       icone: 'briefcase',
-      tarefas: tarefas.filter(
-        tarefa =>
-          tarefa.categoria === 'Trabalho'
-      ).length,
+      tarefas: tarefas.filter(tarefa => tarefa.categoria === 'Trabalho').length,
       pontos: tarefas
-        .filter(
-          tarefa =>
-            tarefa.categoria === 'Trabalho'
-        )
-        .reduce(
-          (total, tarefa) =>
-            total + tarefa.pontos,
-          0
-        ),
+        .filter(tarefa => tarefa.categoria === 'Trabalho')
+        .reduce((total, tarefa) => total + tarefa.pontos, 0),
       corFundo: cores.trabalho,
       corIcone: cores.trabalhoIcone,
     },
@@ -194,20 +145,11 @@ function Principal() {
     {
       titulo: 'Devocional',
       icone: 'heart-circle',
-      tarefas: tarefas.filter(
-        tarefa =>
-          tarefa.categoria === 'Devocional'
-      ).length,
+      tarefas: tarefas.filter(tarefa => tarefa.categoria === 'Devocional')
+        .length,
       pontos: tarefas
-        .filter(
-          tarefa =>
-            tarefa.categoria === 'Devocional'
-        )
-        .reduce(
-          (total, tarefa) =>
-            total + tarefa.pontos,
-          0
-        ),
+        .filter(tarefa => tarefa.categoria === 'Devocional')
+        .reduce((total, tarefa) => total + tarefa.pontos, 0),
       corFundo: cores.devocional,
       corIcone: cores.devocionalIcone,
     },
@@ -263,17 +205,12 @@ function Principal() {
 
   return (
     <SafeAreaView style={estilos.areaSegura}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor={cores.fundo}
-      />
+      <StatusBar barStyle="dark-content" backgroundColor={cores.fundo} />
 
       <View style={estilos.container}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={
-            estilos.conteudoRolagem
-          }
+          contentContainerStyle={estilos.conteudoRolagem}
         >
           <Cabecalho />
 
@@ -283,9 +220,7 @@ function Principal() {
           />
 
           <View style={estilos.cabecalhoSecao}>
-            <Text style={estilos.tituloSecao}>
-              Sua rotina de hoje
-            </Text>
+            <Text style={estilos.tituloSecao}>Sua rotina de hoje</Text>
 
             <Text style={estilos.contador}>
               {tarefasConcluidas}/{tarefas.length}
@@ -302,19 +237,13 @@ function Principal() {
                 pontos={categoria.pontos}
                 corFundo={categoria.corFundo}
                 corIcone={categoria.corIcone}
-                aoPressionar={() =>
-                  abrirCategoria(
-                    categoria.titulo
-                  )
-                }
+                aoPressionar={() => abrirCategoria(categoria.titulo)}
               />
             ))}
           </View>
 
           <View style={estilos.cabecalhoTarefas}>
-            <Text style={estilos.tituloSecao}>
-              Tarefas de hoje
-            </Text>
+            <Text style={estilos.tituloSecao}>Tarefas de hoje</Text>
 
             <Text style={estilos.contadorTarefas}>
               {tarefasConcluidas} concluídas

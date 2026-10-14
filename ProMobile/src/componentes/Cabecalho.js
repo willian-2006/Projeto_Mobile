@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -13,19 +8,13 @@ import { cores } from '../estilos/cores';
 export default function Cabecalho() {
   return (
     <View style={estilos.container}>
-
       <View>
-        <Text style={estilos.saudacao}>
-          Olá, Willian
-        </Text>
+        <Text style={estilos.saudacao}>Olá, Willian</Text>
 
-        <Text style={estilos.subtitulo}>
-          Vamos cumprir suas metas de hoje?
-        </Text>
+        <Text style={estilos.subtitulo}>Vamos cumprir suas metas de hoje?</Text>
       </View>
 
       <View style={estilos.acoes}>
-
         <TouchableOpacity style={estilos.botaoNotificacao}>
           <Ionicons
             name="notifications-outline"
@@ -35,13 +24,9 @@ export default function Cabecalho() {
         </TouchableOpacity>
 
         <TouchableOpacity style={estilos.avatar}>
-          <Text style={estilos.letraAvatar}>
-            W
-          </Text>
+          <Text style={estilos.letraAvatar}>W</Text>
         </TouchableOpacity>
-
       </View>
-
     </View>
   );
 }
