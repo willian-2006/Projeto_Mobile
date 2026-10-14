@@ -4,11 +4,23 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { LinearGradient } from 'expo-linear-gradient';
-
 import { Ionicons } from '@expo/vector-icons';
 
+import Avatar from './Avatar';
+
+import { usePreferencias } from '../contexto/PreferenciasContexto';
+
+import { useSequencia } from '../contexto/TarefasContexto';
+
 import { useEstilos, useTema } from '../contexto/TemaContexto';
+
+function saudacao(hora) {
+  if (hora < 12) {
+    return 'Bom dia';
+  }
+
+  return hora < 18 ? 'Boa tarde' : 'Boa noite';
+}
 
 export default function Cabecalho() {
   const { tema } = useTema();
@@ -17,22 +29,52 @@ export default function Cabecalho() {
 
   const navigation = useNavigation();
 
+  const { preferencias } = usePreferencias();
+
+  const sequencia = useSequencia();
+
+  const nome = preferencias.nome;
+
+  const textoSaudacao = saudacao(new Date().getHours());
+
   return (
     <View style={estilos.container}>
       <View style={estilos.textos}>
-        <Text style={estilos.saudacao}>Olá, Willian</Text>
+        <Text style={estilos.saudacao} numberOfLines={1}>
+          {nome ? `${textoSaudacao}, ${nome}` : textoSaudacao}
+        </Text>
 
-        <Text style={estilos.subtitulo}>Vamos cumprir suas metas de hoje?</Text>
+        {sequencia.atual > 0 ? (
+          <View style={estilos.linhaSequencia}>
+            <Ionicons name="flame" size={15} color={tema.cores.alerta} />
+
+            <Text style={estilos.sequencia}>
+              {sequencia.atual === 1
+                ? '1 dia seguido batendo a meta'
+                : `${sequencia.atual} dias seguidos batendo a meta`}
+            </Text>
+          </View>
+        ) : (
+          <Text style={estilos.subtitulo}>
+            Vamos cumprir suas metas de hoje?
+          </Text>
+        )}
       </View>
 
       <View style={estilos.acoes}>
         <TouchableOpacity
           style={estilos.botaoNotificacao}
+          onPress={() => navigation.navigate('Perfil')}
           accessibilityRole="button"
-          accessibilityLabel="Notificações"
+          accessibilityLabel="Lembretes"
+          accessibilityHint="Abre as configurações de lembretes"
         >
           <Ionicons
-            name="notifications-outline"
+            name={
+              preferencias.lembretesAtivos
+                ? 'notifications'
+                : 'notifications-outline'
+            }
             size={22}
             color={tema.cores.texto}
           />
@@ -43,14 +85,7 @@ export default function Cabecalho() {
           accessibilityRole="button"
           accessibilityLabel="Abrir perfil"
         >
-          <LinearGradient
-            colors={tema.cores.gradientePrincipal}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={estilos.avatar}
-          >
-            <Text style={estilos.letraAvatar}>W</Text>
-          </LinearGradient>
+          <Avatar nome={nome} cor={preferencias.corAvatar} />
         </TouchableOpacity>
       </View>
     </View>
@@ -68,6 +103,7 @@ const criarEstilos = tema =>
 
     textos: {
       flex: 1,
+      marginRight: tema.espaco.sm,
     },
 
     saudacao: {
@@ -79,6 +115,19 @@ const criarEstilos = tema =>
       ...tema.tipografia.corpo,
       color: tema.cores.textoSecundario,
       marginTop: tema.espaco.xs,
+    },
+
+    linhaSequencia: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: tema.espaco.xs,
+    },
+
+    sequencia: {
+      ...tema.tipografia.legendaDestaque,
+      fontSize: 13,
+      color: tema.cores.alerta,
+      marginLeft: tema.espaco.xs,
     },
 
     acoes: {
@@ -96,19 +145,5 @@ const criarEstilos = tema =>
       borderColor: tema.cores.bordaForte,
       justifyContent: 'center',
       alignItems: 'center',
-    },
-
-    avatar: {
-      width: tema.areaToque,
-      height: tema.areaToque,
-      borderRadius: tema.areaToque / 2,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-
-    letraAvatar: {
-      fontFamily: tema.fontes.titulo,
-      fontSize: 18,
-      color: tema.cores.textoSobreDestaque,
     },
   });

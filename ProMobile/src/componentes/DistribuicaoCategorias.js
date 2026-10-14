@@ -1,0 +1,190 @@
+import React from 'react';
+
+import { View, Text, StyleSheet } from 'react-native';
+
+import Svg, { Circle, G } from 'react-native-svg';
+
+import { useEstilos, useTema } from '../contexto/TemaContexto';
+
+import { CATEGORIAS } from '../dados/categorias';
+
+const TAMANHO = 120;
+
+const ESPESSURA = 16;
+
+// Espaço entre os segmentos do anel.
+const FOLGA = 3;
+
+const RAIO = (TAMANHO - ESPESSURA) / 2;
+
+const CIRCUNFERENCIA = 2 * Math.PI * RAIO;
+
+// Um segmento por categoria: onde começa no anel e o comprimento.
+function montarSegmentos(totais) {
+  const total = CATEGORIAS.reduce(
+    (soma, categoria) => soma + (totais[categoria.chave] || 0),
+    0
+  );
+
+  let acumulado = 0;
+
+  const segmentos = CATEGORIAS.map(categoria => {
+    const pontos = totais[categoria.chave] || 0;
+
+    const fracao = total > 0 ? pontos / total : 0;
+
+    const segmento = {
+      categoria,
+      pontos,
+      porcentagem: Math.round(fracao * 100),
+      inicio: acumulado,
+      comprimento: fracao * CIRCUNFERENCIA,
+    };
+
+    acumulado += segmento.comprimento;
+
+    return segmento;
+  });
+
+  return { total, segmentos };
+}
+
+// Anel dividido pelos pontos de cada categoria, com legenda ao lado.
+// `totais` é { chave: pontos }.
+export default function DistribuicaoCategorias({ totais }) {
+  const { tema } = useTema();
+
+  const estilos = useEstilos(criarEstilos);
+
+  const { total, segmentos } = montarSegmentos(totais);
+
+  const visiveis = segmentos.filter(segmento => segmento.pontos > 0);
+
+  const folga = visiveis.length > 1 ? FOLGA : 0;
+
+  return (
+    <View style={estilos.container}>
+      <View
+        style={{ width: TAMANHO, height: TAMANHO }}
+        accessible
+        accessibilityLabel={
+          total > 0
+            ? `Pontos por categoria: ${visiveis
+                .map(s => `${s.categoria.titulo} ${s.porcentagem}%`)
+                .join(', ')}`
+            : 'Ainda sem pontos no período'
+        }
+      >
+        <Svg width={TAMANHO} height={TAMANHO}>
+          <G rotation={-90} origin={`${TAMANHO / 2}, ${TAMANHO / 2}`}>
+            <Circle
+              cx={TAMANHO / 2}
+              cy={TAMANHO / 2}
+              r={RAIO}
+              stroke={tema.cores.superficieElevada}
+              strokeWidth={ESPESSURA}
+              fill="none"
+            />
+
+            {visiveis.map(segmento => (
+              <Circle
+                key={segmento.categoria.chave}
+                cx={TAMANHO / 2}
+                cy={TAMANHO / 2}
+                r={RAIO}
+                stroke={tema.categorias[segmento.categoria.chave].cor}
+                strokeWidth={ESPESSURA}
+                strokeDasharray={`${Math.max(segmento.comprimento - folga, 0.1)} ${CIRCUNFERENCIA}`}
+                strokeDashoffset={-segmento.inicio}
+                fill="none"
+              />
+            ))}
+          </G>
+        </Svg>
+
+        <View style={estilos.centro}>
+          <Text style={estilos.total}>{total}</Text>
+
+          <Text style={estilos.rotuloTotal}>pontos</Text>
+        </View>
+      </View>
+
+      <View style={estilos.legenda}>
+        {segmentos.map(segmento => (
+          <View key={segmento.categoria.chave} style={estilos.linha}>
+            <View
+              style={[
+                estilos.marcador,
+                {
+                  backgroundColor:
+                    tema.categorias[segmento.categoria.chave].cor,
+                },
+              ]}
+            />
+
+            <Text style={estilos.nome} numberOfLines={1}>
+              {segmento.categoria.titulo}
+            </Text>
+
+            <Text style={estilos.valor}>{segmento.porcentagem}%</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const criarEstilos = tema =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+
+    centro: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    total: {
+      ...tema.tipografia.numeros,
+      fontSize: 22,
+      color: tema.cores.texto,
+    },
+
+    rotuloTotal: {
+      ...tema.tipografia.rotulo,
+      color: tema.cores.textoSecundario,
+    },
+
+    legenda: {
+      flex: 1,
+      marginLeft: tema.espaco.xl,
+    },
+
+    linha: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: tema.espaco.xs + 1,
+    },
+
+    marcador: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      marginRight: tema.espaco.sm,
+    },
+
+    nome: {
+      ...tema.tipografia.corpo,
+      flex: 1,
+      color: tema.cores.texto,
+    },
+
+    valor: {
+      ...tema.tipografia.numeros,
+      fontSize: 13,
+      color: tema.cores.textoSecundario,
+    },
+  });

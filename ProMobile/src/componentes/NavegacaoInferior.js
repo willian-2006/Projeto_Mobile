@@ -31,9 +31,9 @@ const itens = {
     icone: 'checkmark-circle',
   },
 
-  Metas: {
-    nome: 'Metas',
-    icone: 'trophy',
+  Estatisticas: {
+    nome: 'Estatísticas',
+    icone: 'stats-chart',
   },
 
   Rotina: {
@@ -129,7 +129,10 @@ export default function NavegacaoInferior({ state, navigation, insets }) {
                     }
                   />
 
-                  <Text style={[estilos.texto, ativo && estilos.textoAtivo]}>
+                  <Text
+                    style={[estilos.texto, ativo && estilos.textoAtivo]}
+                    numberOfLines={1}
+                  >
                     {item.nome}
                   </Text>
                 </TouchableOpacity>

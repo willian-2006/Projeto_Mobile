@@ -8,7 +8,7 @@ import Inicio from '../telas/Inicio';
 
 import Tarefas from '../telas/Tarefas';
 
-import Metas from '../telas/Metas';
+import Estatisticas from '../telas/Estatisticas';
 
 import Rotina from '../telas/Rotina';
 
@@ -30,7 +30,7 @@ export default function AbasInferiores() {
 
       <Abas.Screen name="Tarefas" component={Tarefas} />
 
-      <Abas.Screen name="Metas" component={Metas} />
+      <Abas.Screen name="Estatisticas" component={Estatisticas} />
 
       <Abas.Screen name="Rotina" component={Rotina} />
 

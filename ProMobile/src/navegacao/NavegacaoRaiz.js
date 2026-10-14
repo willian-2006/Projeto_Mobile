@@ -16,6 +16,8 @@ import AbasInferiores from './AbasInferiores';
 
 import Carregando from '../componentes/Carregando';
 
+import Confete from '../componentes/Confete';
+
 import { usePreferencias } from '../contexto/PreferenciasContexto';
 
 import { useTarefas } from '../contexto/TarefasContexto';
@@ -24,7 +26,7 @@ import { useTema } from '../contexto/TemaContexto';
 
 import { arquivosFontes } from '../estilos/fontes';
 
-import { useAvisoMeta } from '../hooks/useAvisoMeta';
+import { useComemoracaoMeta } from '../hooks/useComemoracaoMeta';
 
 import EditorTarefa from '../telas/EditorTarefa';
 
@@ -44,7 +46,7 @@ export default function NavegacaoRaiz() {
   // Se a fonte falhar, segue com a fonte do sistema em vez de travar.
   const [fontesCarregadas, erroFontes] = useFonts(arquivosFontes);
 
-  useAvisoMeta();
+  const comemoracao = useComemoracaoMeta();
 
   const temaNavegacao = useMemo(() => {
     const base = tema.escuro ? DarkTheme : DefaultTheme;
@@ -99,6 +101,8 @@ export default function NavegacaoRaiz() {
           options={{ presentation: 'modal' }}
         />
       </Pilha.Navigator>
+
+      {comemoracao > 0 && <Confete key={comemoracao} />}
     </NavigationContainer>
   );
 }

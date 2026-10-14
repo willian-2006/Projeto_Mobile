@@ -16,16 +16,17 @@ import { brilho } from '../estilos/sombras';
 
 import { calcularPorcentagem } from '../utilitarios/pontuacao';
 
-export default function CartaoProgresso({ pontosAtuais, pontosMaximos }) {
+// Progresso de hoje em relação à meta diária (configurável no Perfil).
+export default function CartaoProgresso({ pontosAtuais, meta }) {
   const { tema } = useTema();
 
   const estilos = useEstilos(criarEstilos);
 
-  const porcentagem = calcularPorcentagem(pontosAtuais, pontosMaximos);
+  const porcentagem = calcularPorcentagem(pontosAtuais, meta);
 
-  const pontosRestantes = Math.max(pontosMaximos - pontosAtuais, 0);
+  const pontosRestantes = Math.max(meta - pontosAtuais, 0);
 
-  const metaBatida = pontosMaximos > 0 && porcentagem === 100;
+  const metaBatida = meta > 0 && pontosAtuais >= meta;
 
   return (
     <View style={estilos.sombra}>
@@ -36,9 +37,9 @@ export default function CartaoProgresso({ pontosAtuais, pontosMaximos }) {
           <View style={estilos.linhaPontos}>
             <NumeroAnimado valor={pontosAtuais} style={estilos.pontosAtuais} />
 
-            <Text style={estilos.pontosMaximos}>
+            <Text style={estilos.textoMeta}>
               {' / '}
-              {pontosMaximos} pts
+              {meta} pts
             </Text>
           </View>
 
@@ -54,7 +55,9 @@ export default function CartaoProgresso({ pontosAtuais, pontosMaximos }) {
             </View>
           ) : (
             <Text style={estilos.restantes}>
-              {pontosRestantes} pontos restantes
+              {pontosRestantes === 1
+                ? 'Falta 1 ponto'
+                : `Faltam ${pontosRestantes} pontos`}
             </Text>
           )}
         </View>
@@ -114,7 +117,7 @@ const criarEstilos = tema =>
       color: tema.cores.texto,
     },
 
-    pontosMaximos: {
+    textoMeta: {
       ...tema.tipografia.numeros,
       fontSize: 15,
       color: tema.cores.textoSecundario,

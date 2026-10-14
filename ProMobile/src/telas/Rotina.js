@@ -20,6 +20,8 @@ import IconeGradiente from '../componentes/IconeGradiente';
 
 import Tela from '../componentes/Tela';
 
+import { usePreferencias } from '../contexto/PreferenciasContexto';
+
 import { useEstatisticas } from '../contexto/TarefasContexto';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
@@ -28,12 +30,21 @@ import { CATEGORIAS } from '../dados/categorias';
 
 import { entradaCascata } from '../estilos/movimento';
 
+import { ordenarCategorias } from '../utilitarios/preferencias';
+
 export default function Rotina({ navigation }) {
   const { tema } = useTema();
 
   const estilos = useEstilos(criarEstilos);
 
   const estatisticas = useEstatisticas();
+
+  const { preferencias } = usePreferencias();
+
+  const categorias = ordenarCategorias(
+    CATEGORIAS,
+    preferencias.categoriasFavoritas
+  );
 
   return (
     <Tela edges={['top']}>
@@ -46,7 +57,7 @@ export default function Rotina({ navigation }) {
           subtitulo="Escolha uma área para organizar"
         />
 
-        {CATEGORIAS.map((categoria, indice) => {
+        {categorias.map((categoria, indice) => {
           const resumo = estatisticas.porCategoria[categoria.chave];
 
           const coresCategoria = tema.categorias[categoria.chave];

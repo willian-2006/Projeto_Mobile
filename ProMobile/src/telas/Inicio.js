@@ -14,11 +14,15 @@ import ListaTarefas from '../componentes/ListaTarefas';
 
 import Tela from '../componentes/Tela';
 
+import { usePreferencias } from '../contexto/PreferenciasContexto';
+
 import { useEstatisticas, useTarefas } from '../contexto/TarefasContexto';
 
 import { useEstilos } from '../contexto/TemaContexto';
 
 import { CATEGORIAS } from '../dados/categorias';
+
+import { ordenarCategorias } from '../utilitarios/preferencias';
 
 export default function Inicio({ navigation }) {
   const estilos = useEstilos(criarEstilos);
@@ -26,6 +30,13 @@ export default function Inicio({ navigation }) {
   const { tarefasDeHoje } = useTarefas();
 
   const estatisticas = useEstatisticas();
+
+  const { preferencias } = usePreferencias();
+
+  const categorias = ordenarCategorias(
+    CATEGORIAS,
+    preferencias.categoriasFavoritas
+  );
 
   const abrirCategoria = useCallback(
     chave => navigation.navigate('Categoria', { chave }),
@@ -38,7 +49,7 @@ export default function Inicio({ navigation }) {
 
       <CartaoProgresso
         pontosAtuais={estatisticas.pontosAtuais}
-        pontosMaximos={estatisticas.pontosMaximos}
+        meta={estatisticas.meta}
       />
 
       <View style={estilos.cabecalhoSecao}>
@@ -52,7 +63,7 @@ export default function Inicio({ navigation }) {
       </View>
 
       <View style={estilos.categorias}>
-        {CATEGORIAS.map((categoria, indice) => (
+        {categorias.map((categoria, indice) => (
           <CartaoCategoria
             key={categoria.chave}
             chave={categoria.chave}
