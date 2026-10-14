@@ -83,6 +83,43 @@ describe.each(ESQUEMAS)('contraste AA no tema %s', esquema => {
     );
   });
 
+  // Chips ativos, botões de ação do cabeçalho, seletor de meta e de
+  // horário: texto colorido sobre o fundo esmaecido, direto sobre o
+  // fundo da tela ou sobre um cartão.
+  const basesEsmaecidas = {
+    fundo: cores.fundo,
+    superficie: cores.superficie,
+    vidro: comporCor(cores.superficieVidro, cores.fundo),
+  };
+
+  Object.entries(basesEsmaecidas).forEach(([nomeBase, corBase]) => {
+    it(`principal sobre principalSuave (base: ${nomeBase})`, () => {
+      const fundoSuave = comporCor(cores.principalSuave, corBase);
+
+      expect(
+        razaoContraste(cores.principal, fundoSuave)
+      ).toBeGreaterThanOrEqual(AA_TEXTO);
+    });
+
+    it(`cor de cada categoria sobre corSuave (base: ${nomeBase})`, () => {
+      Object.values(categorias).forEach(categoria => {
+        const fundoSuave = comporCor(categoria.corSuave, corBase);
+
+        expect(
+          razaoContraste(categoria.cor, fundoSuave)
+        ).toBeGreaterThanOrEqual(AA_TEXTO);
+      });
+    });
+  });
+
+  it('alerta (prioridade alta e sequência) sobre o fundo esmaecido', () => {
+    const fundoSuave = comporCor(cores.principalSuave, cores.fundo);
+
+    expect(razaoContraste(cores.alerta, fundoSuave)).toBeGreaterThanOrEqual(
+      AA_TEXTO
+    );
+  });
+
   it('ícones e letras sobre os gradientes', () => {
     const gradientes = [
       cores.gradientePrincipal,

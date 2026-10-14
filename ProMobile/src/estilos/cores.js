@@ -77,9 +77,9 @@ const claro = {
   textoTerciario: '#64748B',
   textoSobreDestaque: '#0A0E1A',
 
-  principal: '#0E7490',
+  principal: '#0C6A84',
   principalSecundaria: '#6D28D9',
-  principalSuave: 'rgba(14, 116, 144, 0.10)',
+  principalSuave: 'rgba(12, 106, 132, 0.10)',
   gradientePrincipal: gradientes.principal,
 
   sucesso: '#047857',

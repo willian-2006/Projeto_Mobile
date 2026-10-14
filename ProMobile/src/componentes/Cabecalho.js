@@ -64,7 +64,7 @@ export default function Cabecalho() {
       <View style={estilos.acoes}>
         <TouchableOpacity
           style={estilos.botaoNotificacao}
-          onPress={() => navigation.navigate('Perfil')}
+          onPress={() => navigation.navigate('Lembretes')}
           accessibilityRole="button"
           accessibilityLabel="Lembretes"
           accessibilityHint="Abre as configurações de lembretes"

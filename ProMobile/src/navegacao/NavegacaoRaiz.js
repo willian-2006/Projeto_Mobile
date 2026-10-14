@@ -28,18 +28,26 @@ import { arquivosFontes } from '../estilos/fontes';
 
 import { useComemoracaoMeta } from '../hooks/useComemoracaoMeta';
 
+import { useLembretes } from '../hooks/useLembretes';
+
 import EditorTarefa from '../telas/EditorTarefa';
+
+import Lembretes from '../telas/Lembretes';
+
+import Onboarding from '../telas/Onboarding';
 
 import TelaCategoria from '../telas/TelaCategoria';
 
 const Pilha = createNativeStackNavigator();
 
 // O native-stack trata o botão voltar do Android:
-// na tela de categoria ele volta para as abas.
+// na tela de categoria ele volta para as abas. Enquanto o onboarding
+// não foi concluído, ele é a única tela da pilha.
 export default function NavegacaoRaiz() {
   const { carregando: carregandoTarefas } = useTarefas();
 
-  const { carregando: carregandoPreferencias } = usePreferencias();
+  const { preferencias, carregando: carregandoPreferencias } =
+    usePreferencias();
 
   const { tema, carregando: carregandoTema } = useTema();
 
@@ -47,6 +55,8 @@ export default function NavegacaoRaiz() {
   const [fontesCarregadas, erroFontes] = useFonts(arquivosFontes);
 
   const comemoracao = useComemoracaoMeta();
+
+  useLembretes();
 
   const temaNavegacao = useMemo(() => {
     const base = tema.escuro ? DarkTheme : DefaultTheme;
@@ -91,15 +101,23 @@ export default function NavegacaoRaiz() {
           contentStyle: { backgroundColor: tema.cores.fundo },
         }}
       >
-        <Pilha.Screen name="Abas" component={AbasInferiores} />
+        {preferencias.onboardingConcluido ? (
+          <>
+            <Pilha.Screen name="Abas" component={AbasInferiores} />
 
-        <Pilha.Screen name="Categoria" component={TelaCategoria} />
+            <Pilha.Screen name="Categoria" component={TelaCategoria} />
 
-        <Pilha.Screen
-          name="EditorTarefa"
-          component={EditorTarefa}
-          options={{ presentation: 'modal' }}
-        />
+            <Pilha.Screen name="Lembretes" component={Lembretes} />
+
+            <Pilha.Screen
+              name="EditorTarefa"
+              component={EditorTarefa}
+              options={{ presentation: 'modal' }}
+            />
+          </>
+        ) : (
+          <Pilha.Screen name="Onboarding" component={Onboarding} />
+        )}
       </Pilha.Navigator>
 
       {comemoracao > 0 && <Confete key={comemoracao} />}
