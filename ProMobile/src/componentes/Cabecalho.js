@@ -85,7 +85,11 @@ export default function Cabecalho() {
           accessibilityRole="button"
           accessibilityLabel="Abrir perfil"
         >
-          <Avatar nome={nome} cor={preferencias.corAvatar} />
+          <Avatar
+            nome={nome}
+            cor={preferencias.corAvatar}
+            foto={preferencias.foto}
+          />
         </TouchableOpacity>
       </View>
     </View>

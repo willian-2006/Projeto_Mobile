@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 
 import Animated from 'react-native-reanimated';
 
@@ -12,44 +12,78 @@ import { useEstilos, useTema } from '../contexto/TemaContexto';
 
 import { entradaCascata } from '../estilos/movimento';
 
+import { coresDaCategoria } from '../estilos/tema';
+
+import { contar } from '../utilitarios/textos';
+
 function CartaoCategoria({
-  chave,
-  titulo,
-  icone,
+  categoria,
   tarefas,
   pontos,
-  indice,
+  indice = 0,
   aoPressionar,
+  aoSegurar,
+  previa = false,
+  style,
 }) {
   const { tema } = useTema();
 
   const estilos = useEstilos(criarEstilos);
 
-  const coresCategoria = tema.categorias[chave];
+  const cores = coresDaCategoria(tema, categoria);
+
+  const titulo = categoria.titulo || 'Nova categoria';
+
+  const conteudo = (
+    <Cartao style={estilos.cartao}>
+      <IconeGradiente icone={categoria.icone} gradiente={cores.gradiente} />
+
+      <Text style={estilos.titulo} numberOfLines={1}>
+        {titulo}
+      </Text>
+
+      <Text style={estilos.tarefas}>{contar(tarefas, 'tarefa')}</Text>
+
+      <Text style={[estilos.pontos, { color: cores.cor }]}>
+        {contar(pontos, 'ponto')}
+      </Text>
+    </Cartao>
+  );
+
+  if (previa) {
+    return (
+      <View
+        style={[estilos.envoltorio, style]}
+        accessible
+        accessibilityLabel={`Prévia do cartão ${titulo}`}
+      >
+        {conteudo}
+      </View>
+    );
+  }
 
   return (
-    <Animated.View style={estilos.envoltorio} entering={entradaCascata(indice)}>
+    <Animated.View
+      style={[estilos.envoltorio, style]}
+      entering={entradaCascata(indice)}
+    >
       <TouchableOpacity
-        onPress={() => aoPressionar(chave)}
+        onPress={() => aoPressionar(categoria.chave)}
+        onLongPress={aoSegurar ? () => aoSegurar(categoria) : undefined}
+        delayLongPress={400}
         activeOpacity={0.7}
         accessibilityRole="button"
-        accessibilityLabel={`${titulo}: ${tarefas} ${
-          tarefas === 1 ? 'tarefa' : 'tarefas'
-        }, ${pontos} pontos`}
+        accessibilityLabel={`${titulo}: ${contar(tarefas, 'tarefa')}, ${contar(
+          pontos,
+          'ponto'
+        )}`}
+        accessibilityHint={
+          categoria.personalizada
+            ? 'Toque e segure para editar ou excluir'
+            : undefined
+        }
       >
-        <Cartao style={estilos.cartao}>
-          <IconeGradiente icone={icone} gradiente={coresCategoria.gradiente} />
-
-          <Text style={estilos.titulo}>{titulo}</Text>
-
-          <Text style={estilos.tarefas}>
-            {tarefas} {tarefas === 1 ? 'tarefa' : 'tarefas'}
-          </Text>
-
-          <Text style={[estilos.pontos, { color: coresCategoria.cor }]}>
-            {pontos} pontos
-          </Text>
-        </Cartao>
+        {conteudo}
       </TouchableOpacity>
     </Animated.View>
   );

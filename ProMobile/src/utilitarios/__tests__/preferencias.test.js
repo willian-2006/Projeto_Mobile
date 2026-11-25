@@ -3,8 +3,10 @@ import { CATEGORIAS } from '../../dados/categorias';
 import { PREFERENCIAS_PADRAO } from '../../dados/preferencias';
 
 import {
+  fotoValida,
   inicialDoNome,
   limitarMeta,
+  normalizarFoto,
   normalizarPreferencias,
   ordenarCategorias,
   sugerirMeta,
@@ -54,6 +56,7 @@ describe('normalizarPreferencias', () => {
     const preferencias = {
       ...PREFERENCIAS_PADRAO,
       corAvatar: 'saude',
+      foto: 'foto-perfil-1731900000000.jpg',
       meta: 120,
       lembretesAtivos: true,
       resumoDiario: false,
@@ -62,6 +65,43 @@ describe('normalizarPreferencias', () => {
     };
 
     expect(normalizarPreferencias(preferencias)).toEqual(preferencias);
+  });
+
+  it('descarta foto que não é um arquivo de perfil do app', () => {
+    expect(normalizarPreferencias({ foto: 'https://x.com/a.jpg' }).foto).toBe(
+      null
+    );
+    expect(normalizarPreferencias({ foto: 42 }).foto).toBe(null);
+    expect(normalizarPreferencias({ foto: '' }).foto).toBe(null);
+    expect(normalizarPreferencias({ foto: '../foto-perfil-1.jpg' }).foto).toBe(
+      null
+    );
+  });
+});
+
+describe('fotoValida', () => {
+  it('aceita só nomes de arquivo de foto de perfil', () => {
+    expect(fotoValida('foto-perfil-1731900000000.jpg')).toBe(true);
+    expect(fotoValida('foto-perfil-1.png')).toBe(true);
+    expect(fotoValida('foto-perfil-1.exe')).toBe(false);
+    expect(fotoValida('file:///foto-perfil-1.jpg')).toBe(false);
+    expect(fotoValida(null)).toBe(false);
+  });
+});
+
+describe('normalizarFoto', () => {
+  it('converte o caminho completo antigo em nome de arquivo', () => {
+    expect(
+      normalizarFoto(
+        'file:///var/mobile/Containers/Data/Application/ABC/Documents/foto-perfil-17.jpg'
+      )
+    ).toBe('foto-perfil-17.jpg');
+  });
+
+  it('mantém o nome e descarta o resto', () => {
+    expect(normalizarFoto('foto-perfil-17.jpeg')).toBe('foto-perfil-17.jpeg');
+    expect(normalizarFoto('file:///Documents/outra.jpg')).toBe(null);
+    expect(normalizarFoto(undefined)).toBe(null);
   });
 });
 

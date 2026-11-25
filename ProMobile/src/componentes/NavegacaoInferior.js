@@ -38,11 +38,6 @@ const itens = {
     icone: 'stats-chart',
   },
 
-  Rotina: {
-    nome: 'Rotina',
-    icone: 'calendar',
-  },
-
   Perfil: {
     nome: 'Perfil',
     icone: 'person',

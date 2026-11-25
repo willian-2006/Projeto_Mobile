@@ -20,13 +20,13 @@ import { useTarefas } from '../contexto/TarefasContexto';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-import { CATEGORIAS } from '../dados/categorias';
+import { coresDaCategoria } from '../estilos/tema';
+
+import { useListaCategorias } from '../hooks/useCategorias';
 
 import { vibrarSelecao } from '../servicos/vibracao';
 
 const TODAS = 'todas';
-
-const filtros = [{ chave: TODAS, titulo: 'Todas' }, ...CATEGORIAS];
 
 export default function Tarefas({ navigation }) {
   const { tema } = useTema();
@@ -35,7 +35,16 @@ export default function Tarefas({ navigation }) {
 
   const { tarefas } = useTarefas();
 
-  const [filtro, setFiltro] = useState(TODAS);
+  const { ordenadas, buscar } = useListaCategorias();
+
+  const filtros = useMemo(
+    () => [{ chave: TODAS, titulo: 'Todas' }, ...ordenadas],
+    [ordenadas]
+  );
+
+  const [filtroEscolhido, setFiltro] = useState(TODAS);
+
+  const filtro = buscar(filtroEscolhido) ? filtroEscolhido : TODAS;
 
   const tarefasFiltradas = useMemo(
     () =>
@@ -48,7 +57,7 @@ export default function Tarefas({ navigation }) {
   function corDoFiltro(chave) {
     return chave === TODAS
       ? { cor: tema.cores.principal, corSuave: tema.cores.principalSuave }
-      : tema.categorias[chave];
+      : coresDaCategoria(tema, buscar(chave));
   }
 
   const cabecalhoLista = (

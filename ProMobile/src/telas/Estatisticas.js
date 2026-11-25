@@ -32,9 +32,11 @@ import {
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-import { CATEGORIAS } from '../dados/categorias';
-
 import { entradaCascata } from '../estilos/movimento';
+
+import { coresDaCategoria } from '../estilos/tema';
+
+import { useListaCategorias } from '../hooks/useCategorias';
 
 import {
   calendarioDoMes,
@@ -42,9 +44,10 @@ import {
   pontosDaSemana,
 } from '../utilitarios/estatisticas';
 
-import { calcularPorcentagem } from '../utilitarios/pontuacao';
-
-import { ordenarCategorias } from '../utilitarios/preferencias';
+import {
+  calcularPorcentagem,
+  resumoDaCategoria,
+} from '../utilitarios/pontuacao';
 
 import { registrarDia } from '../utilitarios/viradaDoDia';
 
@@ -79,10 +82,7 @@ export default function Estatisticas() {
     semana.reduce((soma, dia) => soma + dia.pontos, 0) / semana.length
   );
 
-  const categorias = ordenarCategorias(
-    CATEGORIAS,
-    preferencias.categoriasFavoritas
-  );
+  const { ordenadas: categorias } = useListaCategorias();
 
   return (
     <Tela edges={['top']}>
@@ -144,9 +144,14 @@ export default function Estatisticas() {
         </Text>
 
         <Cartao style={estilos.cartao}>
-          <DistribuicaoCategorias totais={distribuicao} />
+          <DistribuicaoCategorias
+            totais={distribuicao}
+            categorias={categorias}
+          />
 
-          <Text style={estilos.legenda}>Somando os últimos 7 dias</Text>
+          <Text style={[estilos.legenda, estilos.legendaSeparada]}>
+            Somando os últimos 7 dias
+          </Text>
         </Cartao>
 
         <Text style={estilos.tituloSecao} accessibilityRole="header">
@@ -162,9 +167,9 @@ export default function Estatisticas() {
         </Text>
 
         {categorias.map((categoria, indice) => {
-          const resumo = estatisticas.porCategoria[categoria.chave];
+          const resumo = resumoDaCategoria(estatisticas, categoria.chave);
 
-          const coresCategoria = tema.categorias[categoria.chave];
+          const coresCategoria = coresDaCategoria(tema, categoria);
 
           const porcentagem = calcularPorcentagem(
             resumo.pontosConcluidos,
@@ -261,6 +266,13 @@ const criarEstilos = tema =>
       ...tema.tipografia.legenda,
       color: tema.cores.textoSecundario,
       marginTop: tema.espaco.md,
+    },
+
+    legendaSeparada: {
+      marginTop: tema.espaco.lg,
+      paddingTop: tema.espaco.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: tema.cores.borda,
     },
 
     cartaoCategoria: {

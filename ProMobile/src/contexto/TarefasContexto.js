@@ -23,6 +23,8 @@ import {
   salvarDados,
 } from '../servicos/armazenamento';
 
+import { montarListaCategorias } from '../utilitarios/categorias';
+
 import { gerarId } from '../utilitarios/gerarId';
 
 import {
@@ -166,6 +168,10 @@ export function TarefasProvider({ children }) {
     [hoje]
   );
 
+  const aoExcluirTarefasDaCategoria = useCallback(categoria => {
+    despachar({ tipo: ACOES.excluirDaCategoria, categoria });
+  }, []);
+
   const aoReordenar = useCallback((idOrigem, idDestino) => {
     despachar({ tipo: ACOES.reordenar, idOrigem, idDestino });
   }, []);
@@ -195,6 +201,7 @@ export function TarefasProvider({ children }) {
       aoAlternar,
       aoExcluir,
       aoEditar,
+      aoExcluirTarefasDaCategoria,
       aoReordenar,
       aoRedefinirTarefas,
     }),
@@ -207,6 +214,7 @@ export function TarefasProvider({ children }) {
       aoAlternar,
       aoExcluir,
       aoEditar,
+      aoExcluirTarefasDaCategoria,
       aoReordenar,
       aoRedefinirTarefas,
     ]
@@ -236,8 +244,13 @@ export function useEstatisticas() {
 
   const meta = preferencias.meta;
 
+  const personalizadas = preferencias.categoriasPersonalizadas;
+
   return useMemo(() => {
-    const estatisticas = calcularEstatisticas(tarefasDeHoje);
+    const estatisticas = calcularEstatisticas(
+      tarefasDeHoje,
+      montarListaCategorias(personalizadas).map(categoria => categoria.chave)
+    );
 
     return {
       ...estatisticas,
@@ -245,7 +258,7 @@ export function useEstatisticas() {
       porcentagem: calcularPorcentagem(estatisticas.pontosAtuais, meta),
       metaBatida: estatisticas.pontosAtuais >= meta,
     };
-  }, [tarefasDeHoje, meta]);
+  }, [tarefasDeHoje, meta, personalizadas]);
 }
 
 export function useSequencia() {

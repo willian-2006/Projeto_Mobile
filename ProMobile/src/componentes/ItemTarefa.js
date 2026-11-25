@@ -20,7 +20,9 @@ import Cartao from './Cartao';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-import { buscarCategoria } from '../dados/categorias';
+import { coresDaCategoria } from '../estilos/tema';
+
+import { useListaCategorias } from '../hooks/useCategorias';
 
 import {
   entradaCascata,
@@ -49,10 +51,11 @@ function ItemTarefa({
 
   const estilos = useEstilos(criarEstilos);
 
-  const categoria = buscarCategoria(tarefa.categoria);
+  const { buscar } = useListaCategorias();
 
-  const coresCategoria =
-    tema.categorias[tarefa.categoria] || tema.categorias.estudos;
+  const categoria = buscar(tarefa.categoria);
+
+  const coresCategoria = coresDaCategoria(tema, categoria);
 
   const preenchimento = useSharedValue(tarefa.concluida ? 1 : 0);
 
@@ -316,7 +319,8 @@ const criarEstilos = tema =>
     },
 
     iconeCheck: {
-      ...StyleSheet.absoluteFillObject,
+      position: 'absolute',
+      inset: 0,
       justifyContent: 'center',
       alignItems: 'center',
     },

@@ -30,7 +30,9 @@ import { useTarefas } from '../contexto/TarefasContexto';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-import { CATEGORIAS } from '../dados/categorias';
+import { coresDaCategoria } from '../estilos/tema';
+
+import { useListaCategorias } from '../hooks/useCategorias';
 
 import {
   OPCOES_PONTOS,
@@ -54,6 +56,8 @@ export default function EditorTarefa({ route, navigation }) {
 
   const { preferencias } = usePreferencias();
 
+  const { ordenadas: categorias, buscar } = useListaCategorias();
+
   const parametros = route.params || {};
 
   const encontrada = parametros.id
@@ -69,7 +73,9 @@ export default function EditorTarefa({ route, navigation }) {
   const [campos, setCampos] = useState(() => ({
     titulo: existente?.titulo ?? parametros.titulo ?? '',
     categoria:
-      existente?.categoria ?? parametros.categoria ?? CATEGORIAS[0].chave,
+      existente?.categoria ??
+      buscar(parametros.categoria)?.chave ??
+      categorias[0].chave,
     pontos: existente?.pontos ?? PONTOS_PADRAO,
     prioridade: existente?.prioridade ?? PRIORIDADE_PADRAO,
     horario: existente?.horario ?? null,
@@ -164,17 +170,21 @@ export default function EditorTarefa({ route, navigation }) {
         <Text style={estilos.rotulo}>Categoria</Text>
 
         <View style={estilos.grupo} accessibilityRole="radiogroup">
-          {CATEGORIAS.map(categoria => (
-            <Chip
-              key={categoria.chave}
-              titulo={categoria.titulo}
-              icone={categoria.icone}
-              ativo={campos.categoria === categoria.chave}
-              cor={tema.categorias[categoria.chave].cor}
-              corSuave={tema.categorias[categoria.chave].corSuave}
-              aoPressionar={() => alterar({ categoria: categoria.chave })}
-            />
-          ))}
+          {categorias.map(categoria => {
+            const cores = coresDaCategoria(tema, categoria);
+
+            return (
+              <Chip
+                key={categoria.chave}
+                titulo={categoria.titulo}
+                icone={categoria.icone}
+                ativo={campos.categoria === categoria.chave}
+                cor={cores.cor}
+                corSuave={cores.corSuave}
+                aoPressionar={() => alterar({ categoria: categoria.chave })}
+              />
+            );
+          })}
         </View>
 
         <Text style={estilos.rotulo}>Pontos</Text>

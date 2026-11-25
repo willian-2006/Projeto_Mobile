@@ -16,10 +16,17 @@ export function montarTema(esquema) {
     escuro: nome === 'escuro',
     cores,
     categorias: cores.categorias,
+    paletasCategoria: cores.paletasCategoria,
     fontes,
     tipografia,
     espaco,
     raio,
     areaToque: AREA_TOQUE,
   };
+}
+
+export function coresDaCategoria(tema, categoria) {
+  return (
+    tema.paletasCategoria[categoria?.paleta] ?? tema.paletasCategoria.indigo
+  );
 }

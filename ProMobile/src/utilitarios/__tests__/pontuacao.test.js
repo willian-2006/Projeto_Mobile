@@ -1,4 +1,9 @@
-import { calcularEstatisticas, calcularPorcentagem } from '../pontuacao';
+import {
+  RESUMO_CATEGORIA_VAZIO,
+  calcularEstatisticas,
+  calcularPorcentagem,
+  resumoDaCategoria,
+} from '../pontuacao';
 
 const tarefas = [
   { id: 'a', categoria: 'saude', pontos: 10, concluida: true },
@@ -44,13 +49,34 @@ describe('calcularEstatisticas', () => {
     expect(estatisticas.porCategoria.trabalho.tarefas).toBe(0);
   });
 
-  it('ignora categoria desconhecida no resumo, mas conta nos totais', () => {
+  it('resume categorias personalizadas e as conta na meta', () => {
     const estatisticas = calcularEstatisticas([
-      { id: 'x', categoria: 'outra', pontos: 5, concluida: false },
+      { id: 'x', categoria: 'pers-1', pontos: 5, concluida: true },
+      { id: 'y', categoria: 'saude', pontos: 10, concluida: false },
     ]);
 
-    expect(estatisticas.pontosMaximos).toBe(5);
-    expect(estatisticas.porCategoria.outra).toBeUndefined();
+    expect(estatisticas.pontosAtuais).toBe(5);
+    expect(estatisticas.pontosMaximos).toBe(15);
+    expect(estatisticas.porCategoria['pers-1']).toEqual({
+      tarefas: 1,
+      concluidas: 1,
+      pontos: 5,
+      pontosConcluidos: 5,
+    });
+  });
+
+  it('inicia zeradas as categorias pedidas', () => {
+    const estatisticas = calcularEstatisticas([], ['saude', 'pers-2']);
+
+    expect(Object.keys(estatisticas.porCategoria)).toEqual(['saude', 'pers-2']);
+  });
+});
+
+describe('resumoDaCategoria', () => {
+  it('devolve um resumo zerado para categoria sem tarefas', () => {
+    expect(resumoDaCategoria(calcularEstatisticas([]), 'pers-9')).toEqual(
+      RESUMO_CATEGORIA_VAZIO
+    );
   });
 });
 

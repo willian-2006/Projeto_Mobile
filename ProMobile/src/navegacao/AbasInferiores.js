@@ -10,8 +10,6 @@ import Tarefas from '../telas/Tarefas';
 
 import Estatisticas from '../telas/Estatisticas';
 
-import Rotina from '../telas/Rotina';
-
 import Perfil from '../telas/Perfil';
 
 const Abas = createBottomTabNavigator();
@@ -31,8 +29,6 @@ export default function AbasInferiores() {
       <Abas.Screen name="Tarefas" component={Tarefas} />
 
       <Abas.Screen name="Estatisticas" component={Estatisticas} />
-
-      <Abas.Screen name="Rotina" component={Rotina} />
 
       <Abas.Screen name="Perfil" component={Perfil} />
     </Abas.Navigator>

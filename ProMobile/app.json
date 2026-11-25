@@ -50,7 +50,22 @@
           "icon": "./assets/notification-icon.png",
           "color": "#22D3EE"
         }
+      ],
+      "expo-status-bar",
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O WillFlow acessa suas fotos só para você escolher a foto de perfil.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a46b5a67-9412-4340-bbf5-f4b72a6f9ce5"
+      }
+    }
   }
 }

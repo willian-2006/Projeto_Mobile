@@ -25,8 +25,10 @@ export const TAMANHO_MAXIMO_NOME = 30;
 export const PREFERENCIAS_PADRAO = {
   nome: '',
   corAvatar: 'principal',
+  foto: null,
   meta: 50,
   categoriasFavoritas: [],
+  categoriasPersonalizadas: [],
   lembretesAtivos: false,
   resumoDiario: true,
   horarioResumo: '20:00',

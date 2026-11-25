@@ -24,7 +24,9 @@ import { useTarefas } from '../contexto/TarefasContexto';
 
 import { useEstilos, useTema } from '../contexto/TemaContexto';
 
-import { buscarCategoria } from '../dados/categorias';
+import { coresDaCategoria } from '../estilos/tema';
+
+import { useListaCategorias } from '../hooks/useCategorias';
 
 import { TAMANHO_MAXIMO_TITULO } from '../dados/opcoesTarefa';
 
@@ -37,7 +39,9 @@ export default function TelaCategoria({ route, navigation }) {
 
   const estilos = useEstilos(criarEstilos);
 
-  const categoria = buscarCategoria(route.params?.chave);
+  const { buscar } = useListaCategorias();
+
+  const categoria = buscar(route.params?.chave);
 
   const { tarefas, aoAdicionar } = useTarefas();
 
@@ -67,7 +71,7 @@ export default function TelaCategoria({ route, navigation }) {
     );
   }
 
-  const coresCategoria = tema.categorias[categoria.chave];
+  const coresCategoria = coresDaCategoria(tema, categoria);
 
   function adicionar() {
     const titulo = novaTarefa.trim();

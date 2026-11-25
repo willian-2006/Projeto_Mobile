@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Share,
+  Linking,
   StyleSheet,
 } from 'react-native';
 
@@ -25,6 +25,8 @@ import SeletorMeta from '../componentes/SeletorMeta';
 
 import Tela from '../componentes/Tela';
 
+import { useAviso } from '../contexto/AvisoContexto';
+
 import { usePreferencias } from '../contexto/PreferenciasContexto';
 
 import {
@@ -41,13 +43,21 @@ import {
   TAMANHO_MAXIMO_NOME,
 } from '../dados/preferencias';
 
-import { limparDados, montarExportacao } from '../servicos/armazenamento';
+import { limparDados } from '../servicos/armazenamento';
+
+import { exportarDadosTxt } from '../servicos/exportacao';
+
+import { apagarFotoPerfil, escolherFotoPerfil } from '../servicos/fotoPerfil';
 
 import { vibrarExclusao, vibrarSelecao } from '../servicos/vibracao';
 
 import { sugerirMeta } from '../utilitarios/preferencias';
 
 import { contar } from '../utilitarios/textos';
+
+const TAMANHO_AVATAR = 88;
+
+const TAMANHO_SELO = 30;
 
 const opcoesTema = [
   { chave: 'sistema', titulo: 'Sistema', icone: 'phone-portrait-outline' },
@@ -65,6 +75,8 @@ export default function Perfil({ navigation }) {
 
   const { tarefas, historico, aoRedefinirTarefas } = useTarefas();
 
+  const { mostrarAviso } = useAviso();
+
   const estatisticas = useEstatisticas();
 
   const sequencia = useSequencia();
@@ -81,18 +93,100 @@ export default function Perfil({ navigation }) {
   const metaSugerida = sugerirMeta(estatisticas.pontosMaximos);
 
   function salvarNome() {
-    aoAtualizarPreferencias({ nome });
+    const nomeLimpo = nome.trim();
+
+    if (!nomeLimpo) {
+      setNome(preferencias.nome);
+      mostrarAviso({ mensagem: 'O nome não pode ficar vazio.' });
+      return;
+    }
+
+    aoAtualizarPreferencias({ nome: nomeLimpo });
   }
 
   async function exportar() {
     try {
-      await Share.share({
-        title: 'Dados do WillFlow',
-        message: montarExportacao({ tarefas, historico }, preferencias),
+      const { nome: arquivo, modo } = await exportarDadosTxt(
+        { tarefas, historico },
+        preferencias
+      );
+
+      mostrarAviso({
+        mensagem:
+          modo === 'arquivo'
+            ? `Arquivo ${arquivo} gerado.`
+            : 'Dados compartilhados como texto (.txt).',
       });
     } catch (erro) {
       console.warn('Não foi possível exportar os dados.', erro);
+
+      mostrarAviso({ mensagem: 'Não foi possível exportar o arquivo .txt.' });
     }
+  }
+
+  async function trocarFoto() {
+    try {
+      const resultado = await escolherFotoPerfil();
+
+      if (resultado.status === 'negada') {
+        avisarPermissaoNegada(resultado.podePerguntar);
+        return;
+      }
+
+      if (resultado.status !== 'escolhida') {
+        return;
+      }
+
+      const anterior = preferencias.foto;
+
+      aoAtualizarPreferencias({ foto: resultado.foto });
+      apagarFotoPerfil(anterior);
+      vibrarSelecao();
+      mostrarAviso({ mensagem: 'Foto de perfil atualizada.' });
+    } catch (erro) {
+      console.warn('Não foi possível escolher a foto.', erro);
+
+      mostrarAviso({ mensagem: 'Não foi possível carregar a foto.' });
+    }
+  }
+
+  function avisarPermissaoNegada(podePerguntar) {
+    Alert.alert(
+      'Acesso às fotos',
+      podePerguntar
+        ? 'O WillFlow só usa a galeria para você escolher a foto de perfil. Nada sai do seu aparelho.'
+        : 'O acesso às fotos está desativado. Ative nos ajustes do aparelho para escolher uma foto de perfil.',
+      podePerguntar
+        ? [
+            { text: 'Agora não', style: 'cancel' },
+            { text: 'Permitir', onPress: trocarFoto },
+          ]
+        : [
+            { text: 'Agora não', style: 'cancel' },
+            { text: 'Abrir ajustes', onPress: () => Linking.openSettings() },
+          ]
+    );
+  }
+
+  function confirmarRemocaoFoto() {
+    Alert.alert(
+      'Remover foto?',
+      'Seu avatar volta a mostrar a inicial do seu nome.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Remover',
+          style: 'destructive',
+          onPress: () => {
+            const anterior = preferencias.foto;
+
+            aoAtualizarPreferencias({ foto: null });
+            apagarFotoPerfil(anterior);
+            mostrarAviso({ mensagem: 'Foto de perfil removida.' });
+          },
+        },
+      ]
+    );
   }
 
   function confirmarLimpeza() {
@@ -106,6 +200,7 @@ export default function Perfil({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             vibrarExclusao();
+            apagarFotoPerfil(preferencias.foto);
             await limparDados();
             aoRedefinirTarefas();
             aoRedefinirPreferencias();
@@ -154,7 +249,44 @@ export default function Perfil({ navigation }) {
         <CabecalhoTela titulo="Perfil" />
 
         <Cartao style={estilos.cartaoPerfil}>
-          <Avatar nome={nome} cor={preferencias.corAvatar} tamanho={76} />
+          <TouchableOpacity
+            onPress={trocarFoto}
+            activeOpacity={0.8}
+            style={estilos.botaoAvatar}
+            accessibilityRole="button"
+            accessibilityLabel={
+              preferencias.foto
+                ? 'Alterar foto de perfil'
+                : 'Adicionar foto de perfil'
+            }
+            accessibilityHint="Abre a galeria de fotos"
+          >
+            <Avatar
+              nome={nome}
+              cor={preferencias.corAvatar}
+              foto={preferencias.foto}
+              tamanho={TAMANHO_AVATAR}
+            />
+
+            <View style={estilos.seloCamera}>
+              <Ionicons
+                name="camera"
+                size={15}
+                color={tema.cores.textoSobreDestaque}
+              />
+            </View>
+          </TouchableOpacity>
+
+          {preferencias.foto ? (
+            <TouchableOpacity
+              onPress={confirmarRemocaoFoto}
+              style={estilos.botaoRemoverFoto}
+              accessibilityRole="button"
+              accessibilityLabel="Remover foto de perfil"
+            >
+              <Text style={estilos.textoRemoverFoto}>Remover foto</Text>
+            </TouchableOpacity>
+          ) : null}
 
           <TextInput
             style={estilos.nome}
@@ -280,8 +412,9 @@ export default function Perfil({ navigation }) {
           })}
 
           {linha({
-            icone: 'download-outline',
+            icone: 'document-text-outline',
             texto: 'Exportar dados',
+            detalhe: 'Arquivo .txt',
             aoPressionar: exportar,
           })}
 
@@ -310,6 +443,38 @@ const criarEstilos = tema =>
       padding: tema.espaco.xl,
       alignItems: 'center',
       marginBottom: tema.espaco.xxl - 4,
+    },
+
+    botaoAvatar: {
+      position: 'relative',
+      width: TAMANHO_AVATAR,
+      height: TAMANHO_AVATAR,
+    },
+
+    seloCamera: {
+      position: 'absolute',
+      right: -2,
+      bottom: -2,
+      width: TAMANHO_SELO,
+      height: TAMANHO_SELO,
+      borderRadius: TAMANHO_SELO / 2,
+      borderWidth: 3,
+      borderColor: tema.cores.fundo,
+      backgroundColor: tema.cores.principal,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    botaoRemoverFoto: {
+      minHeight: tema.areaToque,
+      paddingHorizontal: tema.espaco.md,
+      justifyContent: 'center',
+    },
+
+    textoRemoverFoto: {
+      ...tema.tipografia.legendaDestaque,
+      color: tema.cores.textoSecundario,
+      textDecorationLine: 'underline',
     },
 
     nome: {

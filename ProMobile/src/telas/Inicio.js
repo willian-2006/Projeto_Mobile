@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Alert, StyleSheet } from 'react-native';
 
 import Cabecalho from '../componentes/Cabecalho';
 
@@ -8,21 +8,25 @@ import CartaoProgresso from '../componentes/CartaoProgresso';
 
 import CartaoCategoria from '../componentes/CartaoCategoria';
 
+import CartaoNovaCategoria from '../componentes/CartaoNovaCategoria';
+
 import EstadoVazio from '../componentes/EstadoVazio';
 
 import ListaTarefas from '../componentes/ListaTarefas';
 
 import Tela from '../componentes/Tela';
 
-import { usePreferencias } from '../contexto/PreferenciasContexto';
+import { useAviso } from '../contexto/AvisoContexto';
 
 import { useEstatisticas, useTarefas } from '../contexto/TarefasContexto';
 
 import { useEstilos } from '../contexto/TemaContexto';
 
-import { CATEGORIAS } from '../dados/categorias';
+import { useListaCategorias } from '../hooks/useCategorias';
 
-import { ordenarCategorias } from '../utilitarios/preferencias';
+import { useExclusaoCategoria } from '../hooks/useExclusaoCategoria';
+
+import { resumoDaCategoria } from '../utilitarios/pontuacao';
 
 import { contar } from '../utilitarios/textos';
 
@@ -33,16 +37,50 @@ export default function Inicio({ navigation }) {
 
   const estatisticas = useEstatisticas();
 
-  const { preferencias } = usePreferencias();
+  const { ordenadas, total, limite, podeCriar } = useListaCategorias();
 
-  const categorias = ordenarCategorias(
-    CATEGORIAS,
-    preferencias.categoriasFavoritas
-  );
+  const pedirExclusao = useExclusaoCategoria();
+
+  const { mostrarAviso } = useAviso();
 
   const abrirCategoria = useCallback(
     chave => navigation.navigate('Categoria', { chave }),
     [navigation]
+  );
+
+  const abrirEditorCategoria = useCallback(
+    chave =>
+      navigation.navigate('EditorCategoria', chave ? { chave } : undefined),
+    [navigation]
+  );
+
+  const gerenciarCategoria = useCallback(
+    categoria => {
+      if (!categoria.personalizada) {
+        mostrarAviso({
+          mensagem: 'As categorias padrão não podem ser alteradas.',
+        });
+        return;
+      }
+
+      Alert.alert(
+        categoria.titulo,
+        'O que você quer fazer com esta categoria?',
+        [
+          {
+            text: 'Editar',
+            onPress: () => abrirEditorCategoria(categoria.chave),
+          },
+          {
+            text: 'Excluir',
+            style: 'destructive',
+            onPress: () => pedirExclusao(categoria),
+          },
+          { text: 'Cancelar', style: 'cancel' },
+        ]
+      );
+    },
+    [mostrarAviso, abrirEditorCategoria, pedirExclusao]
   );
 
   const cabecalhoLista = (
@@ -55,9 +93,25 @@ export default function Inicio({ navigation }) {
       />
 
       <View style={estilos.cabecalhoSecao}>
-        <Text style={estilos.tituloSecao} accessibilityRole="header">
-          Sua rotina de hoje
-        </Text>
+        <View>
+          <Text style={estilos.tituloSecao} accessibilityRole="header">
+            Sua rotina de hoje
+          </Text>
+
+          <View
+            style={[estilos.selo, !podeCriar && estilos.seloCheio]}
+            accessible
+            accessibilityLabel={`${total} de ${limite} categorias${
+              podeCriar ? '' : ', limite atingido'
+            }`}
+          >
+            <Text
+              style={[estilos.textoSelo, !podeCriar && estilos.textoSeloCheio]}
+            >
+              {total}/{limite} categorias
+            </Text>
+          </View>
+        </View>
 
         <Text style={estilos.contador}>
           {estatisticas.concluidas}/{estatisticas.total}
@@ -65,18 +119,29 @@ export default function Inicio({ navigation }) {
       </View>
 
       <View style={estilos.categorias}>
-        {categorias.map((categoria, indice) => (
-          <CartaoCategoria
-            key={categoria.chave}
-            chave={categoria.chave}
-            titulo={categoria.titulo}
-            icone={categoria.icone}
-            tarefas={estatisticas.porCategoria[categoria.chave].tarefas}
-            pontos={estatisticas.porCategoria[categoria.chave].pontos}
-            indice={indice}
-            aoPressionar={abrirCategoria}
+        {ordenadas.map((categoria, indice) => {
+          const resumo = resumoDaCategoria(estatisticas, categoria.chave);
+
+          return (
+            <CartaoCategoria
+              key={categoria.chave}
+              categoria={categoria}
+              tarefas={resumo.tarefas}
+              pontos={resumo.pontos}
+              indice={indice}
+              aoPressionar={abrirCategoria}
+              aoSegurar={gerenciarCategoria}
+            />
+          );
+        })}
+
+        {podeCriar ? (
+          <CartaoNovaCategoria
+            vagas={limite - total}
+            indice={ordenadas.length}
+            aoPressionar={() => abrirEditorCategoria()}
           />
-        ))}
+        ) : null}
       </View>
 
       <View style={estilos.cabecalhoSecao}>
@@ -127,6 +192,30 @@ const criarEstilos = tema =>
     tituloSecao: {
       ...tema.tipografia.tituloSecao,
       color: tema.cores.texto,
+    },
+
+    selo: {
+      alignSelf: 'flex-start',
+      marginTop: tema.espaco.xs + 2,
+      paddingHorizontal: tema.espaco.sm,
+      paddingVertical: 3,
+      borderRadius: tema.raio.sm,
+      backgroundColor: tema.cores.superficieElevada,
+    },
+
+    seloCheio: {
+      backgroundColor: tema.cores.principalSuave,
+    },
+
+    textoSelo: {
+      ...tema.tipografia.legenda,
+      ...tema.tipografia.numeros,
+      fontFamily: tema.fontes.corpoMedio,
+      color: tema.cores.textoSecundario,
+    },
+
+    textoSeloCheio: {
+      color: tema.cores.principal,
     },
 
     contador: {

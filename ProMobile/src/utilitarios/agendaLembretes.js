@@ -1,5 +1,7 @@
 import { buscarCategoria } from '../dados/categorias';
 
+import { montarListaCategorias } from './categorias';
+
 import { adicionarDias, chaveDia, dataComHorario } from './datas';
 
 import { filtrarTarefasDoDia } from './tarefas';
@@ -45,6 +47,10 @@ export function montarAgenda(tarefas, preferencias, agora = new Date()) {
 
   const hoje = chaveDia(agora);
 
+  const categorias = montarListaCategorias(
+    preferencias.categoriasPersonalizadas
+  );
+
   const agenda = [];
 
   for (let indice = 0; indice < DIAS_AGENDADOS; indice += 1) {
@@ -65,7 +71,7 @@ export function montarAgenda(tarefas, preferencias, agora = new Date()) {
       const data = dataComHorario(dia, tarefa.horario);
 
       if (data > agora) {
-        const categoria = buscarCategoria(tarefa.categoria);
+        const categoria = buscarCategoria(tarefa.categoria, categorias);
 
         agenda.push({
           id: `tarefa-${tarefa.id}-${dia}`,

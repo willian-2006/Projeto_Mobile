@@ -12,7 +12,6 @@ import {
   dadosIniciais,
   limparDados,
   migrarDados,
-  montarExportacao,
   salvarDados,
   salvarPreferenciaTema,
   salvarPreferencias,
@@ -310,18 +309,6 @@ describe('limparDados', () => {
     expect(await AsyncStorage.getItem(CHAVE_PREFERENCIAS)).toBeNull();
     expect(await AsyncStorage.getItem(CHAVE_RECUPERACAO)).toBeNull();
     expect(await carregarPreferenciaTema()).toBe('sistema');
-  });
-});
-
-describe('montarExportacao', () => {
-  it('gera um JSON com preferências, tarefas e histórico', () => {
-    const exportado = JSON.parse(montarExportacao(dados, PREFERENCIAS_PADRAO));
-
-    expect(exportado.app).toBe('WillFlow');
-    expect(exportado.versao).toBe(VERSAO_ATUAL);
-    expect(exportado.tarefas).toEqual(dados.tarefas);
-    expect(exportado.historico).toEqual(dados.historico);
-    expect(exportado.preferencias).toEqual(PREFERENCIAS_PADRAO);
   });
 });
 

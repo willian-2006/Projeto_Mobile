@@ -229,18 +229,3 @@ export async function limparDados() {
     console.warn('Não foi possível limpar os dados.', erro);
   }
 }
-
-export function montarExportacao(dados, preferencias) {
-  return JSON.stringify(
-    {
-      app: 'WillFlow',
-      versao: VERSAO_ATUAL,
-      exportadoEm: new Date().toISOString(),
-      preferencias,
-      tarefas: dados.tarefas,
-      historico: dados.historico,
-    },
-    null,
-    2
-  );
-}

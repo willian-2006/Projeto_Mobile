@@ -36,6 +36,24 @@ describe('tarefasReducer', () => {
     expect(resultado[2]).toBe(nova);
   });
 
+  it('exclui todas as tarefas de uma categoria', () => {
+    const resultado = tarefasReducer(
+      [...tarefas, { ...tarefas[0], id: 'c', categoria: 'pers-1' }],
+      { tipo: ACOES.excluirDaCategoria, categoria: 'pers-1' }
+    );
+
+    expect(resultado.map(tarefa => tarefa.id)).toEqual(['a', 'b']);
+  });
+
+  it('mantém a mesma lista se a categoria não tem tarefas', () => {
+    const resultado = tarefasReducer(tarefas, {
+      tipo: ACOES.excluirDaCategoria,
+      categoria: 'pers-9',
+    });
+
+    expect(resultado).toBe(tarefas);
+  });
+
   it('alterna só a tarefa indicada', () => {
     const resultado = tarefasReducer(tarefas, {
       tipo: ACOES.alternar,

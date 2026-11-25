@@ -1,6 +1,6 @@
-import { ESQUEMAS, montarTema } from '../tema';
+import { ESQUEMAS, coresDaCategoria, montarTema } from '../tema';
 
-import { CATEGORIAS } from '../../dados/categorias';
+import { CATEGORIAS, PALETAS_CATEGORIA } from '../../dados/categorias';
 
 import { comporCor, razaoContraste } from '../../utilitarios/contraste';
 
@@ -29,12 +29,36 @@ describe('montarTema', () => {
       expect(cores.cor).toBeDefined();
       expect(cores.corSuave).toBeDefined();
       expect(cores.gradiente).toHaveLength(2);
+      expect(tema.paletasCategoria[categoria.paleta]).toBe(cores);
     });
+  });
+
+  it.each(ESQUEMAS)('tema %s tem todas as paletas selecionáveis', esquema => {
+    const tema = montarTema(esquema);
+
+    PALETAS_CATEGORIA.forEach(paleta => {
+      const cores = tema.paletasCategoria[paleta.chave];
+
+      expect(cores.cor).toBeDefined();
+      expect(cores.corSuave).toBeDefined();
+      expect(cores.gradiente).toHaveLength(2);
+    });
+  });
+
+  it('coresDaCategoria usa a paleta e cai no índigo se faltar', () => {
+    const tema = montarTema('escuro');
+
+    expect(coresDaCategoria(tema, { paleta: 'coral' })).toBe(
+      tema.paletasCategoria.coral
+    );
+    expect(coresDaCategoria(tema, undefined)).toBe(
+      tema.paletasCategoria.indigo
+    );
   });
 });
 
 describe.each(ESQUEMAS)('contraste AA no tema %s', esquema => {
-  const { cores, categorias } = montarTema(esquema);
+  const { cores, paletasCategoria: categorias } = montarTema(esquema);
 
   const fundos = {
     fundo: cores.fundo,

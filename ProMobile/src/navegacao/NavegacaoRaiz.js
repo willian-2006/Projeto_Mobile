@@ -32,6 +32,8 @@ import { useComemoracaoMeta } from '../hooks/useComemoracaoMeta';
 
 import { useLembretes } from '../hooks/useLembretes';
 
+import EditorCategoria from '../telas/EditorCategoria';
+
 import EditorTarefa from '../telas/EditorTarefa';
 
 import Lembretes from '../telas/Lembretes';
@@ -118,6 +120,18 @@ export default function NavegacaoRaiz() {
               name="EditorTarefa"
               component={EditorTarefa}
               options={{ presentation: 'modal' }}
+            />
+
+            <Pilha.Screen
+              name="EditorCategoria"
+              component={EditorCategoria}
+              options={{
+                presentation: 'formSheet',
+                sheetAllowedDetents: [0.92],
+                sheetGrabberVisible: true,
+                sheetCornerRadius: 28,
+                contentStyle: { backgroundColor: tema.cores.superficie },
+              }}
             />
           </>
         ) : (

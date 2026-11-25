@@ -9,7 +9,11 @@ import {
   TAMANHO_MAXIMO_NOME,
 } from '../dados/preferencias';
 
+import { normalizarCategoriasPersonalizadas } from './categorias';
+
 import { horarioValido } from './datas';
+
+const PADRAO_FOTO = /^foto-perfil-\d{1,15}\.(jpe?g|png|heic|webp)$/;
 
 export function limitarMeta(meta) {
   const numero = Math.round(Number(meta));
@@ -29,10 +33,30 @@ export function sugerirMeta(pontosDoDia) {
   return limitarMeta(Math.round((pontosDoDia * 0.7) / PASSO_META) * PASSO_META);
 }
 
+export function fotoValida(foto) {
+  return typeof foto === 'string' && PADRAO_FOTO.test(foto);
+}
+
+export function normalizarFoto(foto) {
+  if (typeof foto !== 'string') {
+    return null;
+  }
+
+  const nome = foto.startsWith('file://') ? foto.split('/').pop() : foto;
+
+  return fotoValida(nome) ? nome : null;
+}
+
 export function normalizarPreferencias(salvas) {
   const dados = salvas && typeof salvas === 'object' ? salvas : {};
 
-  const chavesCategorias = CATEGORIAS.map(categoria => categoria.chave);
+  const categoriasPersonalizadas = normalizarCategoriasPersonalizadas(
+    dados.categoriasPersonalizadas
+  );
+
+  const chavesCategorias = [...CATEGORIAS, ...categoriasPersonalizadas].map(
+    categoria => categoria.chave
+  );
 
   return {
     nome:
@@ -42,6 +66,7 @@ export function normalizarPreferencias(salvas) {
     corAvatar: CORES_AVATAR.includes(dados.corAvatar)
       ? dados.corAvatar
       : PREFERENCIAS_PADRAO.corAvatar,
+    foto: normalizarFoto(dados.foto),
     meta:
       dados.meta === undefined
         ? PREFERENCIAS_PADRAO.meta
@@ -51,6 +76,7 @@ export function normalizarPreferencias(salvas) {
           chavesCategorias.includes(chave)
         )
       : [],
+    categoriasPersonalizadas,
     lembretesAtivos: Boolean(dados.lembretesAtivos),
     resumoDiario:
       typeof dados.resumoDiario === 'boolean'

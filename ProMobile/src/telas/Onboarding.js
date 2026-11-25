@@ -49,7 +49,7 @@ const PASSOS = [
     icone: 'star',
     titulo: 'O que é prioridade?',
     subtitulo:
-      'Escolha suas áreas favoritas. Elas aparecem primeiro no app (dá para pular).',
+      'Escolha suas áreas favoritas. Elas aparecem primeiro no app (é opcional).',
   },
   {
     icone: 'flag',
@@ -80,6 +80,10 @@ export default function Onboarding() {
 
   const ultimo = passo === PASSOS.length - 1;
 
+  const nomeLimpo = nome.trim();
+
+  const podeAvancar = passo !== 0 || nomeLimpo.length > 0;
+
   function alternarFavorita(chave) {
     setFavoritas(atuais =>
       atuais.includes(chave)
@@ -89,8 +93,13 @@ export default function Onboarding() {
   }
 
   function concluir() {
+    if (!nomeLimpo) {
+      setPasso(0);
+      return;
+    }
+
     aoAtualizarPreferencias({
-      nome,
+      nome: nomeLimpo,
       categoriasFavoritas: favoritas,
       meta,
       onboardingConcluido: true,
@@ -98,6 +107,10 @@ export default function Onboarding() {
   }
 
   function avancar() {
+    if (!podeAvancar) {
+      return;
+    }
+
     if (ultimo) {
       concluir();
     } else {
@@ -129,15 +142,6 @@ export default function Onboarding() {
               />
             ))}
           </View>
-
-          <TouchableOpacity
-            style={estilos.botaoTexto}
-            onPress={concluir}
-            accessibilityRole="button"
-            accessibilityLabel="Pular introdução"
-          >
-            <Text style={estilos.textoBotao}>Pular</Text>
-          </TouchableOpacity>
         </View>
 
         <ScrollView
@@ -173,7 +177,9 @@ export default function Onboarding() {
                 autoFocus={!nome}
                 autoCapitalize="words"
                 returnKeyType="next"
+                submitBehavior={nomeLimpo ? 'blurAndSubmit' : 'submit'}
                 accessibilityLabel="Seu nome"
+                accessibilityHint="Obrigatório para continuar"
               />
             )}
 
@@ -221,6 +227,7 @@ export default function Onboarding() {
           <BotaoPrincipal
             titulo={ultimo ? 'Começar' : 'Continuar'}
             aoPressionar={avancar}
+            desativado={!podeAvancar}
             style={estilos.botaoPrincipal}
           />
         </View>
@@ -239,6 +246,7 @@ const criarEstilos = tema =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      minHeight: tema.areaToque + tema.espaco.md,
       paddingHorizontal: tema.espaco.xl - 4,
       paddingTop: tema.espaco.md,
     },

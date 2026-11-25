@@ -6,6 +6,7 @@ export const ACOES = {
   adicionar: 'adicionar',
   alternar: 'alternar',
   excluir: 'excluir',
+  excluirDaCategoria: 'excluirDaCategoria',
   editar: 'editar',
   reinserir: 'reinserir',
   reordenar: 'reordenar',
@@ -27,6 +28,14 @@ export function tarefasReducer(tarefas, acao) {
 
     case ACOES.excluir:
       return tarefas.filter(tarefa => tarefa.id !== acao.id);
+
+    case ACOES.excluirDaCategoria: {
+      const restantes = tarefas.filter(
+        tarefa => tarefa.categoria !== acao.categoria
+      );
+
+      return restantes.length === tarefas.length ? tarefas : restantes;
+    }
 
     case ACOES.editar:
       return tarefas.map(tarefa =>
